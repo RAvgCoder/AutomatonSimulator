@@ -18,18 +18,16 @@ fn main() {
     // let automaton_type = read_automaton_type();
     let automaton_type = DFA;
 
-    let menu_idx = menus::find_command_from_menu(
-        match automaton_type {
-            DFA => menus::dfa_menu::list(),
-            NFA => menus::nfa_menu::list(),
-            PDA => menus::pda_menu::list()
-        }
-    );
+    let menu_idx = menus::find_command_from_menu(match automaton_type {
+        DFA => menus::dfa_menu::list(),
+        NFA => menus::nfa_menu::list(),
+        PDA => menus::pda_menu::list(),
+    });
 
     match automaton_type {
         DFA => menus::dfa_menu::table(menu_idx, automaton_program),
         NFA => menus::nfa_menu::table(menu_idx, automaton_program),
-        PDA => menus::pda_menu::table(menu_idx, automaton_program)
+        PDA => menus::pda_menu::table(menu_idx, automaton_program),
     }
 }
 
@@ -48,7 +46,11 @@ fn read_automaton_type() -> AutomatonType {
         "NFA" => NFA,
         "PDA" => PDA,
         other => {
-            panic!("Cannot recognise automaton {} for types {:?}", other, vec![NFA, DFA, PDA]);
+            panic!(
+                "Cannot recognise automaton {} for types {:?}",
+                other,
+                vec![NFA, DFA, PDA]
+            );
         }
     };
     automaton_type
@@ -56,7 +58,7 @@ fn read_automaton_type() -> AutomatonType {
 
 fn read_program() -> String {
     let mut file_path = String::new();
-    file_path =  String::from(r"C:\Users\egbor\Videos\Rust\AutomatonSimulator\src\TESTS\input.txt");
+    file_path = String::from(r"C:\Users\egbor\Videos\Rust\AutomatonSimulator\src\TESTS\input.txt");
     // Read the file_path for the automaton input
     // io::stdin()
     //     .read_line(&mut file_path)
@@ -68,7 +70,10 @@ fn read_program() -> String {
     File::open(file_path.trim_end_matches(end_of_line()))
         .expect(&format!("Could not open the file {}", file_path))
         .read_to_string(&mut prog)
-        .expect(&format!("Could not read the program from the file {}", file_path));
+        .expect(&format!(
+            "Could not read the program from the file {}",
+            file_path
+        ));
 
     prog
 }

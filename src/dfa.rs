@@ -8,7 +8,7 @@ pub struct DFA<'a> {
 impl<'a> DFA<'a> {
     pub fn new(program: String) -> Self {
         DFA {
-            automaton_graph: Parser::parse(program)
+            automaton_graph: Parser::parse(program),
         }
     }
 

@@ -30,7 +30,7 @@ pub mod dfa_menu {
 
         match command {
             1 => dfa.reduce(),
-            _ => panic!("Error parsing command {}", command)
+            _ => panic!("Error parsing command {}", command),
         }
     }
 }

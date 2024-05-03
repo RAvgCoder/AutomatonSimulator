@@ -1,4 +1,5 @@
 pub mod parser;
+mod utils;
 
 pub struct Parser {
     program_iter: String,
@@ -15,15 +16,4 @@ enum ParserError {
     ObjNameMismatch(String),
     MissingObjSeparator(String),
     ScopeError(String),
-}
-
-#[derive(Debug, PartialOrd, PartialEq)]
-pub enum State {
-    Type,
-    AutomatonType,
-    Transitions,
-    StartState,
-    AcceptStates,
-    States,
-    BulkTests,
 }
