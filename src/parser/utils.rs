@@ -22,15 +22,15 @@ impl Into<char> for Separator {
 #[repr(u8)]
 #[derive(Debug, Copy, Clone)]
 pub(in crate::parser) enum Scope {
-    Box_Bracket = b'[',
-    Curly_Bracket = b'{',
+    BoxBracket = b'[',
+    CurlyBracket = b'{',
 }
 
 impl Scope {
     pub fn closing(&self) -> char {
         match self {
-            Scope::Box_Bracket => ']',
-            Scope::Curly_Bracket => '}',
+            Scope::BoxBracket => ']',
+            Scope::CurlyBracket => '}',
         }
     }
 }
