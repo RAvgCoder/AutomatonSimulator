@@ -61,7 +61,7 @@ impl Parser {
         while parser.can_consume() {
             let user_state = Self::extract_obj_state(&mut parser, &mut obj_name_state);
 
-            println!("State: {:?}", user_state);
+            println!("State:\t{:?}", user_state);
 
             parser.consume_separator(Separator::COLUMN).unwrap();
 
@@ -79,22 +79,57 @@ impl Parser {
                     println!("AutomatonType: {:?}", automaton_type);
                 }
                 State::AutomatonType => {
-                    let _ = parser.consume_scope(Scope::Curly_Bracket);
+                    let x = parser.consume_scope(Scope::CurlyBracket).unwrap();
+                    println!(
+                        "Scope content:\t{}",
+                        if x.program_iter.len() == 0 {
+                            "Empty Scope"
+                        } else {
+                            &x.program_iter
+                        }
+                    )
                 }
                 State::States => {
-                    let _ = parser.consume_scope(Scope::Curly_Bracket);
+                    let x = parser.consume_scope(Scope::CurlyBracket).unwrap();
+                    println!(
+                        "Scope content:\t{}",
+                        if x.program_iter.len() == 0 {
+                            "Empty Scope"
+                        } else {
+                            &x.program_iter
+                        }
+                    )
                 }
                 State::Transitions => {
-                    let _ = parser.consume_scope(Scope::Box_Bracket);
+                    let x = parser.consume_scope(Scope::BoxBracket).unwrap();
+                    println!(
+                        "Scope content:\t{}",
+                        if x.program_iter.len() == 0 {
+                            "Empty Scope"
+                        } else {
+                            &x.program_iter
+                        }
+                    )
                 }
                 State::BulkTests => {
-                    let _ = parser.consume_scope(Scope::Curly_Bracket);
+                    let x = parser.consume_scope(Scope::CurlyBracket).unwrap();
+                    println!(
+                        "Scope content:\t{}",
+                        if x.program_iter.len() == 0 {
+                            "Empty Scope"
+                        } else {
+                            &x.program_iter
+                        }
+                    )
                 }
                 _ => panic!("User state can't be matched for {:?}", user_state),
             }
 
             let _ = parser.consume_separator(Separator::COMMA);
-            println!("Program_cursor_position at index(Not zero indexed): {}", parser.cursor);
+            println!(
+                "Program_cursor_position at index(Not zero indexed):\t{}",
+                parser.cursor
+            );
             println!()
         }
 
@@ -235,7 +270,7 @@ Found: {:?}",
 
         // Validate that you can start reading the name of the object
         if opening_scope_char != scope.into() {
-            return Err(NoObjName(format!(
+            return Err(ScopeError(format!(
                 "Expected to parse an opening scope {:?} but found \"{}\" at index {}",
                 scope, opening_scope_char, self.cursor
             )));
@@ -244,18 +279,18 @@ Found: {:?}",
         // Len of the remaining prog to parse
         let remaining_prog_len = self.program_iter.len() - 1;
 
-        let mut scope_checker = 1; // Initialized at 1 because the opening scope has been read
+        let mut scope_counter = 1; // Initialized at 1 because the opening scope has been read
                                    // Collects scope contents
         let inner_scope_content = prog_iter
             .by_ref()
             .take_while(|&c| {
                 if c == scope.into() {
-                    scope_checker += 1;
+                    scope_counter += 1;
                     true // Cannot close scope here
                 } else if c == scope.closing() {
-                    scope_checker -= 1;
+                    scope_counter -= 1;
                     // Possible that this can be a final closing bracket
-                    scope_checker != 0
+                    scope_counter != 0
                 } else {
                     true // Other characters
                 }
@@ -271,7 +306,7 @@ Found: {:?}",
         // + 2 for the open and closing scope
         self.cursor += inner_scope_content.len() as u32 + 2;
 
-        if inner_scope_content.len() == (remaining_prog_len - 1)
+        if inner_scope_content.len() == remaining_prog_len
         // Missing end scope
         {
             return Err(ScopeError("No closing scope was found".parse().unwrap()));
