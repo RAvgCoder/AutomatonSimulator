@@ -1,0 +1,15 @@
+{
+  "type": "DFA",
+  "dfa": {
+    "transitions": {},
+    "startState": "start",
+    "acceptStates": []
+  },
+  "states": {},
+  "transitions": [],
+  "bulkTests": {
+    "accept": "",
+    "reject": ""
+  }
+}
+

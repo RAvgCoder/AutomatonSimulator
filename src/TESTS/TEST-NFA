@@ -1,0 +1,546 @@
+
+
+// Ass2-q1
+{
+  "type": "NFA",
+  "nfa": {
+    "transitions": {
+      "start": {
+        "d": [
+          "s0"
+        ]
+      },
+      "s0": {
+        "f": [
+          "s1"
+        ]
+      },
+      "s1": {
+        "a": [
+          "s2"
+        ]
+      },
+      "s2": {
+        "a": [
+          "s2"
+        ],
+        "d": [
+          "s2"
+        ],
+        "f": [
+          "s2"
+        ],
+        "n": [
+          "s2",
+          "s3"
+        ]
+      },
+      "s3": {
+        "f": [
+          "s4"
+        ]
+      },
+      "s4": {
+        "a": [
+          "s5"
+        ]
+      }
+    },
+    "startState": "start",
+    "acceptStates": [
+      "s5"
+    ]
+  },
+  "states": {
+    "start": {},
+    "s0": {
+      "top": 148.66667650585939,
+      "left": 167.66667650585939,
+      "displayId": "s0"
+    },
+    "s1": {
+      "top": 151.0000047529297,
+      "left": 355.0000200117188,
+      "displayId": "s1"
+    },
+    "s2": {
+      "top": 281.66667650585936,
+      "left": 535.6667070234375,
+      "displayId": "s2"
+    },
+    "s3": {
+      "top": 351.333333,
+      "left": 372.33333300000004,
+      "displayId": "s3"
+    },
+    "s4": {
+      "top": 442.00002001171873,
+      "left": 221.00002001171876,
+      "displayId": "s4"
+    },
+    "s5": {
+      "isAccept": true,
+      "top": 367.00002001171873,
+      "left": 74.00002001171876,
+      "displayId": "s5"
+    }
+  },
+  "transitions": [
+    {
+      "stateA": "start",
+      "label": "d",
+      "stateB": "s0"
+    },
+    {
+      "stateA": "s0",
+      "label": "f",
+      "stateB": "s1"
+    },
+    {
+      "stateA": "s1",
+      "label": "a",
+      "stateB": "s2"
+    },
+    {
+      "stateA": "s2",
+      "label": "a",
+      "stateB": "s2"
+    },
+    {
+      "stateA": "s2",
+      "label": "d",
+      "stateB": "s2"
+    },
+    {
+      "stateA": "s2",
+      "label": "f",
+      "stateB": "s2"
+    },
+    {
+      "stateA": "s2",
+      "label": "n",
+      "stateB": "s2"
+    },
+    {
+      "stateA": "s2",
+      "label": "n",
+      "stateB": "s3"
+    },
+    {
+      "stateA": "s3",
+      "label": "f",
+      "stateB": "s4"
+    },
+    {
+      "stateA": "s4",
+      "label": "a",
+      "stateB": "s5"
+    }
+  ],
+  "bulkTests": {
+    "accept": "dfanfa\ndfaanfnafdnanfadndafnnfa",
+    "reject": "dfannf\ndffnafdnanfad\nndafnnfa"
+  }
+}
+
+// Ass2-q2
+{
+  "type": "NFA",
+  "nfa": {
+    "transitions": {
+      "start": {
+        "0": [
+          "s0"
+        ],
+        "1": [
+          "s3"
+        ]
+      },
+      "s0": {
+        "1": [
+          "s1"
+        ]
+      },
+      "s1": {
+        "0": [
+          "s2"
+        ]
+      },
+      "s2": {
+        "0": [
+          "s0"
+        ],
+        "1": [
+          "s3"
+        ]
+      },
+      "s3": {
+        "0": [
+          "s4"
+        ]
+      },
+      "s4": {
+        "1": [
+          "s5"
+        ]
+      },
+      "s5": {
+        "0": [
+          "s0"
+        ],
+        "1": [
+          "s3"
+        ]
+      }
+    },
+    "startState": "start",
+    "acceptStates": [
+      "s2"
+    ]
+  },
+  "states": {
+    "start": {},
+    "s0": {
+      "top": 195.66667650585939,
+      "left": 173.66667650585939,
+      "displayId": "s0"
+    },
+    "s3": {
+      "top": 357.66667650585936,
+      "left": 157.66667650585939,
+      "displayId": "s3"
+    },
+    "s1": {
+      "top": 106.33333300000001,
+      "left": 342.33333300000004,
+      "displayId": "s1"
+    },
+    "s2": {
+      "isAccept": true,
+      "top": 207.333333,
+      "left": 520.333333,
+      "displayId": "s2"
+    },
+    "s4": {
+      "top": 434.66667650585936,
+      "left": 324.66670702343754,
+      "displayId": "s4"
+    },
+    "s5": {
+      "top": 347.66667650585936,
+      "left": 532.6667070234375,
+      "displayId": "s5"
+    }
+  },
+  "transitions": [
+    {
+      "stateA": "start",
+      "label": "0",
+      "stateB": "s0"
+    },
+    {
+      "stateA": "start",
+      "label": "1",
+      "stateB": "s3"
+    },
+    {
+      "stateA": "s0",
+      "label": "1",
+      "stateB": "s1"
+    },
+    {
+      "stateA": "s1",
+      "label": "0",
+      "stateB": "s2"
+    },
+    {
+      "stateA": "s2",
+      "label": "0",
+      "stateB": "s0"
+    },
+    {
+      "stateA": "s2",
+      "label": "1",
+      "stateB": "s3"
+    },
+    {
+      "stateA": "s3",
+      "label": "0",
+      "stateB": "s4"
+    },
+    {
+      "stateA": "s4",
+      "label": "1",
+      "stateB": "s5"
+    },
+    {
+      "stateA": "s5",
+      "label": "0",
+      "stateB": "s0"
+    },
+    {
+      "stateA": "s5",
+      "label": "1",
+      "stateB": "s3"
+    }
+  ],
+  "bulkTests": {
+    "accept": "",
+    "reject": ""
+  }
+}
+
+// Ass2-q3
+{
+  "type": "NFA",
+  "nfa": {
+    "transitions": {
+      "start": {
+        "": [
+          "s0",
+          "s5"
+        ]
+      },
+      "s0": {
+        "b": [
+          "s0"
+        ],
+        "a": [
+          "s1"
+        ]
+      },
+      "s1": {
+        "b": [
+          "s1"
+        ],
+        "a": [
+          "s2"
+        ]
+      },
+      "s2": {
+        "b": [
+          "s2"
+        ],
+        "a": [
+          "s3"
+        ]
+      },
+      "s3": {
+        "b": [
+          "s3"
+        ],
+        "a": [
+          "s4"
+        ]
+      },
+      "s4": {
+        "b": [
+          "s4"
+        ],
+        "A": [],
+        "a": [
+          "s0"
+        ],
+        "c": []
+      },
+      "s5": {
+        "a": [
+          "s5"
+        ],
+        "b": [
+          "s6"
+        ]
+      },
+      "s6": {
+        "a": [
+          "s6"
+        ],
+        "b": [
+          "s7"
+        ]
+      },
+      "s7": {
+        "a": [
+          "s7"
+        ],
+        "": [],
+        "b": [
+          "s8"
+        ]
+      },
+      "s8": {
+        "a": [
+          "s8"
+        ],
+        "b": [
+          "s5"
+        ]
+      }
+    },
+    "startState": "start",
+    "acceptStates": [
+      "s2",
+      "s3",
+      "s6",
+      "s7"
+    ]
+  },
+  "states": {
+    "start": {},
+    "s0": {
+      "top": 184.66667650585939,
+      "left": 162.66667650585939,
+      "displayId": "s0"
+    },
+    "s5": {
+      "top": 369.333333,
+      "left": 164.333333,
+      "displayId": "s5"
+    },
+    "s1": {
+      "top": 132.0000047529297,
+      "left": 324.0000200117188,
+      "displayId": "s1"
+    },
+    "s2": {
+      "isAccept": true,
+      "top": 132.66667650585939,
+      "left": 511.66670702343754,
+      "displayId": "s2"
+    },
+    "s3": {
+      "isAccept": true,
+      "top": 134.0000047529297,
+      "left": 687.0000200117188,
+      "displayId": "s3"
+    },
+    "s4": {
+      "top": 187.66667650585939,
+      "left": 863.6667070234375,
+      "displayId": "s4"
+    },
+    "s6": {
+      "isAccept": true,
+      "top": 317.00002001171873,
+      "left": 336.0000200117188,
+      "displayId": "s6"
+    },
+    "s7": {
+      "isAccept": true,
+      "top": 318.333333,
+      "left": 519.333333,
+      "displayId": "s7"
+    },
+    "s8": {
+      "top": 368.333333,
+      "left": 675.333333,
+      "displayId": "s8"
+    }
+  },
+  "transitions": [
+    {
+      "stateA": "start",
+      "label": "ϵ",
+      "stateB": "s0"
+    },
+    {
+      "stateA": "start",
+      "label": "ϵ",
+      "stateB": "s5"
+    },
+    {
+      "stateA": "s0",
+      "label": "b",
+      "stateB": "s0"
+    },
+    {
+      "stateA": "s0",
+      "label": "a",
+      "stateB": "s1"
+    },
+    {
+      "stateA": "s1",
+      "label": "b",
+      "stateB": "s1"
+    },
+    {
+      "stateA": "s1",
+      "label": "a",
+      "stateB": "s2"
+    },
+    {
+      "stateA": "s2",
+      "label": "b",
+      "stateB": "s2"
+    },
+    {
+      "stateA": "s2",
+      "label": "a",
+      "stateB": "s3"
+    },
+    {
+      "stateA": "s3",
+      "label": "b",
+      "stateB": "s3"
+    },
+    {
+      "stateA": "s3",
+      "label": "a",
+      "stateB": "s4"
+    },
+    {
+      "stateA": "s4",
+      "label": "b",
+      "stateB": "s4"
+    },
+    {
+      "stateA": "s4",
+      "label": "a",
+      "stateB": "s0"
+    },
+    {
+      "stateA": "s5",
+      "label": "a",
+      "stateB": "s5"
+    },
+    {
+      "stateA": "s5",
+      "label": "b",
+      "stateB": "s6"
+    },
+    {
+      "stateA": "s6",
+      "label": "a",
+      "stateB": "s6"
+    },
+    {
+      "stateA": "s6",
+      "label": "b",
+      "stateB": "s7"
+    },
+    {
+      "stateA": "s7",
+      "label": "a",
+      "stateB": "s7"
+    },
+    {
+      "stateA": "s7",
+      "label": "b",
+      "stateB": "s8"
+    },
+    {
+      "stateA": "s8",
+      "label": "a",
+      "stateB": "s8"
+    },
+    {
+      "stateA": "s8",
+      "label": "b",
+      "stateB": "s5"
+    }
+  ],
+  "bulkTests": {
+    "accept": "aaaaaaaaa",
+    "reject": ""
+  }
+}
