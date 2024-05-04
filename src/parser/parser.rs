@@ -102,9 +102,7 @@ impl Parser {
                             .unwrap()
                             .program_iter
                             .split(',')
-                            .collect::<Vec<&str>>()
-                            .iter()
-                            .for_each(|&line| {
+                            .for_each(|line: &str| {
                                 let info: Vec<&str> = line
                                     .split(':')
                                     .collect::<Vec<&str>>();
@@ -118,12 +116,12 @@ impl Parser {
                                     _ => { /* displayId do nothing */ }
                                 }
                             });
-                        
+
                         created_nodes.push(Rc::new(Node::new(
                             state_name,
                             position,
                             is_accepted,
-                            vec![]
+                            vec![],
                         )));
 
                         let _ = nodes_parser.try_consume_separator(Separator::COMMA);
@@ -167,8 +165,8 @@ impl Parser {
             0,
             "Parser was not empty after reading the program"
         );
-        
-        println!("{:#?}",created_nodes);
+
+        println!("{:#?}", created_nodes);
 
         None
     }
