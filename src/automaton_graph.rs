@@ -1,14 +1,13 @@
+use std::rc::Rc;
+
+mod graph_implementation;
+
 /// Represents a symbol that is to be
 /// transitioned on
-enum Symbol {
+#[derive(Debug)]
+pub enum Symbol {
     CHAR(char),
     EPSILON,
-}
-
-/// The State the automaton is in
-pub enum State {
-    ACCEPT,
-    REJECT,
 }
 
 #[derive(Debug)]
@@ -19,9 +18,10 @@ pub enum AutomatonType {
 }
 
 /// The transition that would be taken on the automaton
-struct Transition {
+#[derive(Debug)]
+pub struct Transition {
     /// Node it's connecting to
-    to: Node,
+    to: Rc<Node>,
     /// Symbol to move when transitioning
     symbol: Symbol,
 
@@ -33,25 +33,28 @@ struct Transition {
     push: Option<char>,
 }
 
-struct Position {
-    x: usize,
-    y: usize,
+#[derive(Copy, Clone, Debug)]
+pub struct Position {
+    pub(crate) x: f64,
+    pub(crate) y: f64,
 }
+
 
 /// Node for the graphs that represents itself,
 /// and all nodes connected to it
-struct Node {
+#[derive(Debug)]
+pub struct Node {
     id: String,
     position: Position,
+    is_accept_state: bool,
     transition_table: Vec<Transition>,
 }
 
 /// Represents the graph of the automaton to
 /// be simulated
-pub struct Automaton<'a> {
-    start_state: Node,
-    current_state: State,
-    accept_states: Vec<&'a Node>,
+pub struct Automaton {
+    start_state: Rc<Node>,
+    is_in_accept_state: bool,
+    accept_states: Vec<Rc<Node>>,
 }
 
-impl Transition {}
