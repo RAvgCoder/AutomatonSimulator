@@ -7,7 +7,7 @@ pub struct Parser {
 }
 
 #[derive(Debug)]
-enum ParserError {
+pub enum ParserError {
     OutOfInput(String),
     NoObjName(String),
     ObjNameSyntaxErr(String),

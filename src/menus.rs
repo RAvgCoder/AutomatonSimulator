@@ -1,5 +1,4 @@
 use std::io;
-use std::io::Read;
 
 pub mod pda_menu {
     pub fn list() -> Box<[&'static str]> {
