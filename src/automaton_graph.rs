@@ -34,6 +34,7 @@ pub struct Transition {
     push: Option<Symbol>,
 }
 
+/// Position on the screen to be rendered
 #[derive(Copy, Clone, Debug)]
 pub struct Position {
     pub(crate) x: f64,
@@ -47,7 +48,8 @@ pub struct State {
     pub id: String,
     pub position: Position,
     pub is_accept_state: bool,
-    pub transition_table: RefCell<Vec<Transition>>,
+    /// The transitions that can be taken form this state
+    pub transition_edges: RefCell<Vec<Transition>>,
 }
 
 /// Represents the graph of the automaton to
@@ -60,6 +62,8 @@ pub struct Automaton {
     tests: Tests,
 }
 
+/// Represents a test suite for strings to be accepted
+/// or rejected by the automaton
 pub struct Tests {
     pub accepting_strings: Vec<String>,
     pub rejecting_strings: Vec<String>,

@@ -19,7 +19,7 @@ use crate::parser::utils::{Scope, Separator, SkeletonState};
 
 impl Parser {
     /// Parses the file that describes the automaton whose skeleton
-    /// is described as
+    /// is described as or is provided by the website https://automatonsimulator.com/
     ///
     ///     {
     ///
@@ -53,7 +53,7 @@ impl Parser {
         // Creates a parser for to parse the skeleton of the program
         let mut skeleton_parser = Self::new(Self::prog_preprocessor(program));
 
-        // Represents the order it expects the files 
+        // Represents the order it expects the files
         // skeleton should be in when parsed
         let mut skeleton_states = [
             SkeletonState::Type,
@@ -70,20 +70,25 @@ impl Parser {
         let mut accepting_strings: Vec<String> = vec![];
         let mut rejecting_strings: Vec<String> = vec![];
 
-        // Start the parser       
+        // Start the parser
         while skeleton_parser.can_consume() {
             // Get the name of the skeleton section passed in
             let skeleton_state =
                 Self::extract_skeleton_state_name(&mut skeleton_parser, &mut skeleton_states);
 
-            // Read the separator 
-            skeleton_parser.try_consume_separator(Separator::COLUMN).unwrap();
+            // Read the separator
+            skeleton_parser
+                .try_consume_separator(Separator::COLUMN)
+                .unwrap();
 
             // Check the state and act accordingly
             match skeleton_state {
                 SkeletonState::Type => {
                     // Read the name of the automaton and match accordingly
-                    let automaton = skeleton_parser.try_consume_name().unwrap().to_ascii_uppercase();
+                    let automaton = skeleton_parser
+                        .try_consume_name()
+                        .unwrap()
+                        .to_ascii_uppercase();
                     automaton_type = Some(match automaton.as_str() {
                         "DFA" => DFA,
                         "NFA" => NFA,
@@ -92,10 +97,14 @@ impl Parser {
                     });
                 }
                 SkeletonState::AutomatonType => {
-                    let _ = skeleton_parser.try_consume_scope(Scope::CurlyBracket).unwrap();
+                    let _ = skeleton_parser
+                        .try_consume_scope(Scope::CurlyBracket)
+                        .unwrap();
                 }
                 SkeletonState::States => {
-                    let mut state_parser = skeleton_parser.try_consume_scope(Scope::CurlyBracket).unwrap();
+                    let mut state_parser = skeleton_parser
+                        .try_consume_scope(Scope::CurlyBracket)
+                        .unwrap();
 
                     // Process each state
                     while state_parser.can_consume() {
@@ -139,8 +148,9 @@ impl Parser {
                     }
                 }
                 SkeletonState::Transitions => {
-                    let mut transition_scope_parser =
-                        skeleton_parser.try_consume_scope(Scope::BoxBracket).unwrap();
+                    let mut transition_scope_parser = skeleton_parser
+                        .try_consume_scope(Scope::BoxBracket)
+                        .unwrap();
 
                     let mut state_a: Rc<State>;
                     let mut state_b: Rc<State>;
@@ -156,7 +166,8 @@ impl Parser {
 
                         let transition = transition_parser.try_consume_name().unwrap();
                         if "stateA" == transition // PDA name 
-                            || "state_a" == transition // DFA | NFA name 
+                            || "state_a" == transition
+                        // DFA | NFA name
                         {
                             transition_parser
                                 .try_consume_separator(Separator::COLUMN)
@@ -211,7 +222,8 @@ impl Parser {
 
                         let transition = transition_parser.try_consume_name().unwrap();
                         if "stateB" == transition  // PDA name  
-                            || "state_b" == transition  // NFA | DFA name
+                            || "state_b" == transition
+                        // NFA | DFA name
                         {
                             transition_parser
                                 .try_consume_separator(Separator::COLUMN)
@@ -232,7 +244,7 @@ impl Parser {
                             )
                         }
 
-                        // Resolve label symbols 
+                        // Resolve label symbols
                         let mut push: Option<Symbol> = None;
                         let mut symbol: Symbol;
                         let mut pop: Option<Symbol> = None;
@@ -264,21 +276,16 @@ impl Parser {
                         }
 
                         // Create the transition
-                        state_a
-                            .add_to_transition_table(Transition::new(
-                                state_b,
-                                symbol,
-                                pop,
-                                push,
-                            ));
+                        state_a.add_transition(Transition::new(state_b, symbol, pop, push));
 
                         let _ = transition_scope_parser.try_consume_separator(Separator::COMMA);
                         transition_iter_count += 1;
                     }
                 }
                 SkeletonState::BulkTests => {
-                    let mut bulk_test_parser =
-                        skeleton_parser.try_consume_scope(Scope::CurlyBracket).unwrap();
+                    let mut bulk_test_parser = skeleton_parser
+                        .try_consume_scope(Scope::CurlyBracket)
+                        .unwrap();
 
                     // Find all accepting strings
                     accepting_strings =
@@ -348,10 +355,8 @@ impl Parser {
         Automaton::new(
             // This should never fail as long as the skeleton_sate is correctly implemented
             // and the match on sate_type is also correct
-            automaton_type
-                .expect("Automaton type was never set"),
-            Self::find_state_by_id(&state_list, "start")
-                .expect("No Start state found"),
+            automaton_type.expect("Automaton type was never set"),
+            Self::find_state_by_id(&state_list, "start").expect("No Start state found"),
             false,
             state_list // Create a list of all accepting states
                 .iter()
@@ -378,14 +383,16 @@ impl Parser {
         self.program_iter.len() != 0
     }
 
-
     /// Define a function to search for a node by its ID
     fn find_state_by_id(states: &Vec<Rc<State>>, target_id: &str) -> Option<Rc<State>> {
         states.iter().find(|node| node.id == target_id).cloned()
     }
- 
+
     /// Extracts object name from the parser
-    fn extract_skeleton_state_name(parser: &mut Parser, obj_name_state: &mut Iter<SkeletonState>) -> SkeletonState {
+    fn extract_skeleton_state_name(
+        parser: &mut Parser,
+        obj_name_state: &mut Iter<SkeletonState>,
+    ) -> SkeletonState {
         let skeleton_state_name = parser.try_consume_name().unwrap();
 
         // Find the current state to parse from the input
@@ -469,18 +476,16 @@ Found: {:?}",
                 string_retrieved
             )))
         } else {
-            
             // If parsing succeeded
             // Replace the string with the leftover strings in the iterator
             self.program_iter = prog_iter.collect::<String>();
-            
+
             // Advance the cursor read
             self.cursor += next_cursor_pos;
 
             Ok(string_retrieved)
         }
     }
-
 
     /// Consumes a [Separator] from the input
     fn try_consume_separator(&mut self, separator: Separator) -> Result<(), ParserError> {
@@ -501,7 +506,7 @@ Found: {:?}",
     }
 
     /// Consumes a scope returning a parser that iterates over its contents
-    /// Scope is anything withing the brackets described in the [Scope] struct 
+    /// Scope is anything withing the brackets described in the [Scope] struct
     fn try_consume_scope(&mut self, scope: Scope) -> Result<Parser, ParserError> {
         let mut prog_iter = self.program_iter.chars().peekable();
 
@@ -552,8 +557,7 @@ Found: {:?}",
         self.cursor += inner_scope_content.len() as u32 + 2;
 
         // Missing end scope
-        if inner_scope_content.len() == remaining_prog_len
-        {
+        if inner_scope_content.len() == remaining_prog_len {
             return Err(ScopeError("No closing scope was found".parse().unwrap()));
         }
 

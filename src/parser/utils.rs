@@ -6,6 +6,7 @@ use crate::parser::ParserError::{
     ObjNameSyntaxErr, OutOfInput, ScopeError, UnknownTransitionName,
 };
 
+/// Describes a separator used in the parser
 #[repr(u8)]
 #[derive(Debug, Copy, Clone)]
 pub(in crate::parser) enum Separator {
@@ -14,11 +15,14 @@ pub(in crate::parser) enum Separator {
 }
 
 impl Into<char> for Separator {
+    /// Converts the separator from a u8 to a char equivalent
     fn into(self) -> char {
         self as u8 as char
     }
 }
 
+/// Represents an opening scope
+/// represented by "{" OR "["
 #[repr(u8)]
 #[derive(Debug, Copy, Clone)]
 pub(in crate::parser) enum Scope {
@@ -27,6 +31,7 @@ pub(in crate::parser) enum Scope {
 }
 
 impl Scope {
+    /// Gives the corresponding closing bracket for a given scope
     pub fn closing(&self) -> char {
         match self {
             Scope::BoxBracket => ']',
@@ -59,7 +64,21 @@ impl fmt::Display for ParserError {
     }
 }
 
+/// Represents the names that should all automatons share in the json
+/// format from the automaton simulator site
+#[derive(Debug, PartialOrd, PartialEq)]
+pub(in crate::parser) enum SkeletonState {
+    Type,
+    AutomatonType,
+    Transitions,
+    StartState,
+    AcceptStates,
+    States,
+    BulkTests,
+}
+
 impl SkeletonState {
+    /// Converts the skeleton_state name from a string to its concrete type
     pub fn from_string(s: &str) -> Option<SkeletonState> {
         match s.to_lowercase().as_str() {
             "type" => Some(SkeletonState::Type),
@@ -74,15 +93,4 @@ impl SkeletonState {
             _ => None,
         }
     }
-}
-
-#[derive(Debug, PartialOrd, PartialEq)]
-pub(in crate::parser) enum SkeletonState {
-    Type,
-    AutomatonType,
-    Transitions,
-    StartState,
-    AcceptStates,
-    States,
-    BulkTests,
 }

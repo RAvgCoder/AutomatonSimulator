@@ -2,10 +2,11 @@ use std::cell::RefCell;
 use std::fmt;
 use std::rc::Rc;
 
-use crate::automaton_graph::{Automaton, AutomatonType, Position, State, Symbol, Tests, Transition};
+use crate::automaton_graph::{
+    Automaton, AutomatonType, Position, State, Symbol, Tests, Transition,
+};
 
 impl State {
-    /// Creates a new node
     pub fn new(
         id: String,
         position: Position,
@@ -16,12 +17,13 @@ impl State {
             id,
             position,
             is_accept_state,
-            transition_table,
+            transition_edges: transition_table,
         }
     }
 
-    pub fn add_to_transition_table(&self, transition: Transition) {
-        self.transition_table.borrow_mut().push(transition)
+    /// Adds a transition to a particular state
+    pub fn add_transition(&self, transition: Transition) {
+        self.transition_edges.borrow_mut().push(transition)
     }
 }
 
