@@ -16,4 +16,5 @@ pub enum ParserError {
     ObjNameMismatch(String),
     MissingObjSeparator(String),
     ScopeError(String),
+    UnknownTransitionName(String),
 }

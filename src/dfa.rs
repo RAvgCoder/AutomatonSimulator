@@ -2,7 +2,7 @@ use crate::automaton_graph::Automaton;
 use crate::parser::Parser;
 
 pub struct DFA {
-    automaton_graph: Option<Automaton>,
+    automaton_graph: Automaton,
 }
 
 impl DFA {

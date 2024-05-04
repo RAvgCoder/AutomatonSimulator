@@ -3,7 +3,7 @@ use std::fmt;
 use crate::parser::ParserError;
 use crate::parser::ParserError::{
     MissingObjSeparator, NoObjName, ObjNameMismatch, ObjNameNotFound, ObjNameOverFlow,
-    ObjNameSyntaxErr, OutOfInput, ScopeError,
+    ObjNameSyntaxErr, OutOfInput, ScopeError, UnknownTransitionName,
 };
 
 #[repr(u8)]
@@ -52,29 +52,32 @@ impl fmt::Display for ParserError {
             ObjNameMismatch(err_message) => write!(f, "ObjNameMismatch {}", err_message),
             MissingObjSeparator(err_message) => write!(f, "MissingObjSeparator {}", err_message),
             ScopeError(err_message) => write!(f, "NoScopeFound {}", err_message),
+            UnknownTransitionName(err_message) => {
+                write!(f, "UnknownTransitionName {}", err_message)
+            }
         }
     }
 }
 
-impl State {
-    pub fn from_string(s: &str) -> Option<State> {
+impl SkeletonState {
+    pub fn from_string(s: &str) -> Option<SkeletonState> {
         match s.to_lowercase().as_str() {
-            "type" => Some(State::Type),
-            "dfa" => Some(State::AutomatonType),
-            "nfa" => Some(State::AutomatonType),
-            "pda" => Some(State::AutomatonType),
-            "transitions" => Some(State::Transitions),
-            "startstate" => Some(State::StartState),
-            "acceptstates" => Some(State::AcceptStates),
-            "states" => Some(State::States),
-            "bulktests" => Some(State::BulkTests),
+            "type" => Some(SkeletonState::Type),
+            "dfa" => Some(SkeletonState::AutomatonType),
+            "nfa" => Some(SkeletonState::AutomatonType),
+            "pda" => Some(SkeletonState::AutomatonType),
+            "transitions" => Some(SkeletonState::Transitions),
+            "startstate" => Some(SkeletonState::StartState),
+            "acceptstates" => Some(SkeletonState::AcceptStates),
+            "states" => Some(SkeletonState::States),
+            "bulktests" => Some(SkeletonState::BulkTests),
             _ => None,
         }
     }
 }
 
 #[derive(Debug, PartialOrd, PartialEq)]
-pub(in crate::parser) enum State {
+pub(in crate::parser) enum SkeletonState {
     Type,
     AutomatonType,
     Transitions,

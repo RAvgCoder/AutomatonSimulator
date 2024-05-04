@@ -36,9 +36,9 @@
   },
   "transitions": [
     {
-      "stateA": "start",
+      "state_a": "start",
       "label": "A",
-      "stateB": "s0"
+      "state_b": "s0"
     }
   ],
   "bulkTests": {
@@ -72,9 +72,9 @@
   },
   "transitions": [
     {
-      "stateA": "start",
+      "state_a": "start",
       "label": "A",
-      "stateB": "s0"
+      "state_b": "s0"
     }
   ],
   "bulkTests": {
@@ -145,54 +145,54 @@
   },
   "transitions": [
     {
-      "stateA": "start",
+      "state_a": "start",
       "label": "0",
-      "stateB": "s0"
+      "state_b": "s0"
     },
     {
-      "stateA": "start",
+      "state_a": "start",
       "label": "1",
-      "stateB": "s1"
+      "state_b": "s1"
     },
     {
-      "stateA": "s0",
+      "state_a": "s0",
       "label": "0",
-      "stateB": "s0"
+      "state_b": "s0"
     },
     {
-      "stateA": "s0",
+      "state_a": "s0",
       "label": "1",
-      "stateB": "s2"
+      "state_b": "s2"
     },
     {
-      "stateA": "s2",
+      "state_a": "s2",
       "label": "0",
-      "stateB": "s0"
+      "state_b": "s0"
     },
     {
-      "stateA": "s2",
+      "state_a": "s2",
       "label": "1",
-      "stateB": "s2"
+      "state_b": "s2"
     },
     {
-      "stateA": "s1",
+      "state_a": "s1",
       "label": "0",
-      "stateB": "s3"
+      "state_b": "s3"
     },
     {
-      "stateA": "s1",
+      "state_a": "s1",
       "label": "1",
-      "stateB": "s1"
+      "state_b": "s1"
     },
     {
-      "stateA": "s3",
+      "state_a": "s3",
       "label": "0",
-      "stateB": "s3"
+      "state_b": "s3"
     },
     {
-      "stateA": "s3",
+      "state_a": "s3",
       "label": "1",
-      "stateB": "s1"
+      "state_b": "s1"
     }
   ],
   "bulkTests": {
@@ -263,79 +263,79 @@
   },
   "transitions": [
     {
-      "stateA": "start",
+      "state_a": "start",
       "label": "C",
-      "stateB": "s0"
+      "state_b": "s0"
     },
     {
-      "stateA": "start",
+      "state_a": "start",
       "label": "I",
-      "stateB": "start"
+      "state_b": "start"
     },
     {
-      "stateA": "start",
+      "state_a": "start",
       "label": "S",
-      "stateB": "start"
+      "state_b": "start"
     },
     {
-      "stateA": "s0",
+      "state_a": "s0",
       "label": "S",
-      "stateB": "s1"
+      "state_b": "s1"
     },
     {
-      "stateA": "s0",
+      "state_a": "s0",
       "label": "C",
-      "stateB": "start"
+      "state_b": "start"
     },
     {
-      "stateA": "s0",
+      "state_a": "s0",
       "label": "I",
-      "stateB": "start"
+      "state_b": "start"
     },
     {
-      "stateA": "s1",
+      "state_a": "s1",
       "label": "C",
-      "stateB": "s2"
+      "state_b": "s2"
     },
     {
-      "stateA": "s1",
+      "state_a": "s1",
       "label": "I",
-      "stateB": "start"
+      "state_b": "start"
     },
     {
-      "stateA": "s1",
+      "state_a": "s1",
       "label": "S",
-      "stateB": "start"
+      "state_b": "start"
     },
     {
-      "stateA": "s2",
+      "state_a": "s2",
       "label": "I",
-      "stateB": "s3"
+      "state_b": "s3"
     },
     {
-      "stateA": "s2",
+      "state_a": "s2",
       "label": "C",
-      "stateB": "start"
+      "state_b": "start"
     },
     {
-      "stateA": "s2",
+      "state_a": "s2",
       "label": "S",
-      "stateB": "start"
+      "state_b": "start"
     },
     {
-      "stateA": "s3",
+      "state_a": "s3",
       "label": "I",
-      "stateB": "start"
+      "state_b": "start"
     },
     {
-      "stateA": "s3",
+      "state_a": "s3",
       "label": "C",
-      "stateB": "start"
+      "state_b": "start"
     },
     {
-      "stateA": "s3",
+      "state_a": "s3",
       "label": "S",
-      "stateB": "start"
+      "state_b": "start"
     }
   ],
   "bulkTests": {
@@ -448,104 +448,104 @@
   },
   "transitions": [
     {
-      "stateA": "start",
+      "state_a": "start",
       "label": "0",
-      "stateB": "s1"
+      "state_b": "s1"
     },
     {
-      "stateA": "start",
+      "state_a": "start",
       "label": "1",
-      "stateB": "s0"
+      "state_b": "s0"
     },
     {
-      "stateA": "s0",
+      "state_a": "s0",
       "label": "0",
-      "stateB": "s2"
+      "state_b": "s2"
     },
     {
-      "stateA": "s0",
+      "state_a": "s0",
       "label": "1",
-      "stateB": "s3"
+      "state_b": "s3"
     },
     {
-      "stateA": "s1",
+      "state_a": "s1",
       "label": "0",
-      "stateB": "s3"
+      "state_b": "s3"
     },
     {
-      "stateA": "s1",
+      "state_a": "s1",
       "label": "1",
-      "stateB": "s4"
+      "state_b": "s4"
     },
     {
-      "stateA": "s4",
+      "state_a": "s4",
       "label": "0",
-      "stateB": "s4"
+      "state_b": "s4"
     },
     {
-      "stateA": "s4",
+      "state_a": "s4",
       "label": "1",
-      "stateB": "s5"
+      "state_b": "s5"
     },
     {
-      "stateA": "s5",
+      "state_a": "s5",
       "label": "0",
-      "stateB": "s6"
+      "state_b": "s6"
     },
     {
-      "stateA": "s5",
+      "state_a": "s5",
       "label": "1",
-      "stateB": "s5"
+      "state_b": "s5"
     },
     {
-      "stateA": "s6",
+      "state_a": "s6",
       "label": "0",
-      "stateB": "s4"
+      "state_b": "s4"
     },
     {
-      "stateA": "s6",
+      "state_a": "s6",
       "label": "1",
-      "stateB": "s5"
+      "state_b": "s5"
     },
     {
-      "stateA": "s2",
+      "state_a": "s2",
       "label": "0",
-      "stateB": "s7"
+      "state_b": "s7"
     },
     {
-      "stateA": "s2",
+      "state_a": "s2",
       "label": "1",
-      "stateB": "s2"
+      "state_b": "s2"
     },
     {
-      "stateA": "s7",
+      "state_a": "s7",
       "label": "0",
-      "stateB": "s7"
+      "state_b": "s7"
     },
     {
-      "stateA": "s7",
+      "state_a": "s7",
       "label": "1",
-      "stateB": "s8"
+      "state_b": "s8"
     },
     {
-      "stateA": "s8",
+      "state_a": "s8",
       "label": "0",
-      "stateB": "s7"
+      "state_b": "s7"
     },
     {
-      "stateA": "s8",
+      "state_a": "s8",
       "label": "1",
-      "stateB": "s2"
+      "state_b": "s2"
     },
     {
-      "stateA": "s3",
+      "state_a": "s3",
       "label": "0",
-      "stateB": "s3"
+      "state_b": "s3"
     },
     {
-      "stateA": "s3",
+      "state_a": "s3",
       "label": "1",
-      "stateB": "s3"
+      "state_b": "s3"
     }
   ],
   "bulkTests": {
@@ -629,64 +629,64 @@
   },
   "transitions": [
     {
-      "stateA": "start",
+      "state_a": "start",
       "label": "0",
-      "stateB": "s2"
+      "state_b": "s2"
     },
     {
-      "stateA": "start",
+      "state_a": "start",
       "label": "1",
-      "stateB": "s0"
+      "state_b": "s0"
     },
     {
-      "stateA": "s0",
+      "state_a": "s0",
       "label": "0",
-      "stateB": "s2"
+      "state_b": "s2"
     },
     {
-      "stateA": "s0",
+      "state_a": "s0",
       "label": "1",
-      "stateB": "s1"
+      "state_b": "s1"
     },
     {
-      "stateA": "s2",
+      "state_a": "s2",
       "label": "0",
-      "stateB": "s2"
+      "state_b": "s2"
     },
     {
-      "stateA": "s2",
+      "state_a": "s2",
       "label": "1",
-      "stateB": "s2"
+      "state_b": "s2"
     },
     {
-      "stateA": "s1",
+      "state_a": "s1",
       "label": "0",
-      "stateB": "s3"
+      "state_b": "s3"
     },
     {
-      "stateA": "s1",
+      "state_a": "s1",
       "label": "1",
-      "stateB": "s1"
+      "state_b": "s1"
     },
     {
-      "stateA": "s3",
+      "state_a": "s3",
       "label": "0",
-      "stateB": "s4"
+      "state_b": "s4"
     },
     {
-      "stateA": "s3",
+      "state_a": "s3",
       "label": "1",
-      "stateB": "s1"
+      "state_b": "s1"
     },
     {
-      "stateA": "s4",
+      "state_a": "s4",
       "label": "0",
-      "stateB": "s4"
+      "state_b": "s4"
     },
     {
-      "stateA": "s4",
+      "state_a": "s4",
       "label": "1",
-      "stateB": "s1"
+      "state_b": "s1"
     }
   ],
   "bulkTests": {

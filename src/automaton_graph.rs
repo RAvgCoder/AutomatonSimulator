@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use std::rc::Rc;
 
 mod graph_implementation;
@@ -7,9 +8,10 @@ mod graph_implementation;
 #[derive(Debug)]
 pub enum Symbol {
     CHAR(char),
-    EPSILON,
+    EPSILON, // ϵ
 }
 
+/// Represents an automaton type
 #[derive(Debug)]
 pub enum AutomatonType {
     DFA,
@@ -18,19 +20,18 @@ pub enum AutomatonType {
 }
 
 /// The transition that would be taken on the automaton
-#[derive(Debug)]
 pub struct Transition {
-    /// Node it's connecting to
-    to: Rc<Node>,
+    /// State it's connecting to
+    to: Rc<State>,
     /// Symbol to move when transitioning
     symbol: Symbol,
 
     /// If transition graph is a PDA
 
     /// Symbol pushed on the stack
-    pop: Option<char>,
+    pop: Option<Symbol>,
     /// Symbol popped from the stack
-    push: Option<char>,
+    push: Option<Symbol>,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -39,22 +40,27 @@ pub struct Position {
     pub(crate) y: f64,
 }
 
-
 /// Node for the graphs that represents itself,
 /// and all nodes connected to it
 #[derive(Debug)]
-pub struct Node {
-    id: String,
-    position: Position,
-    is_accept_state: bool,
-    transition_table: Vec<Transition>,
+pub struct State {
+    pub id: String,
+    pub position: Position,
+    pub is_accept_state: bool,
+    pub transition_table: RefCell<Vec<Transition>>,
 }
 
 /// Represents the graph of the automaton to
 /// be simulated
 pub struct Automaton {
-    start_state: Rc<Node>,
+    automaton_type: AutomatonType,
+    start_state: Rc<State>,
     is_in_accept_state: bool,
-    accept_states: Vec<Rc<Node>>,
+    accept_states: Vec<Rc<State>>,
+    tests: Tests,
 }
 
+pub struct Tests {
+    pub accepting_strings: Vec<String>,
+    pub rejecting_strings: Vec<String>,
+}

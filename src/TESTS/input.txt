@@ -1,14 +1,1 @@
-{
-  "type": "DFA",
-  "dfa": {
-    "transitions": {},
-    "startState": "start",
-    "acceptStates": []
-  },
-  "states": {},
-  "transitions": [],
-  "bulkTests": {
-    "accept": "",
-    "reject": ""
-  }
-}
+{"type":"DFA","dfa":{"transitions":{"start":{"0":"start","1":"s0"},"s0":{"0":"s0","1":"s1"},"s1":{"0":"s1","1":"start"}},"startState":"start","acceptStates":["start"]},"states":{"start":{"isAccept":true},"s0":{"top":238.33334062939454,"left":212.333333,"displayId":"s0"},"s1":{"top":271.6666841352539,"left":429.66670702343754,"displayId":"s1"}},"transitions":[{"stateA":"start","label":"0","stateB":"start"},{"stateA":"start","label":"1","stateB":"s0"},{"stateA":"s0","label":"0","stateB":"s0"},{"stateA":"s0","label":"1","stateB":"s1"},{"stateA":"s1","label":"0","stateB":"s1"},{"stateA":"s1","label":"1","stateB":"start"}],"bulkTests":{"accept":"\n000\n111\n010101\n111111111111111\n000000000011001\n10000000100000010111\n1010101010101010001","reject":"00001000000010000\n0100\n1\n1111\n0101101\n11111111111111\n00000100000001\n100000100100000010111\n10101011010101010001"}}

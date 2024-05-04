@@ -1,12 +1,13 @@
+use std::cell::RefCell;
 use std::rc::Rc;
 use std::slice::Iter;
 
 use regex::Regex;
 
-use automaton_graph::Node;
+use automaton_graph::State;
 
 use crate::automaton_graph;
-use crate::automaton_graph::{Automaton, AutomatonType, Position};
+use crate::automaton_graph::{Automaton, AutomatonType, Position, Symbol, Tests, Transition};
 use crate::automaton_graph::AutomatonType::{DFA, NFA, PDA};
 use crate::parser::{Parser, ParserError};
 use crate::parser::parser::ParserError::{
@@ -14,7 +15,7 @@ use crate::parser::parser::ParserError::{
     ObjNameSyntaxErr,
 };
 use crate::parser::ParserError::{OutOfInput, ScopeError};
-use crate::parser::utils::{Scope, Separator, State};
+use crate::parser::utils::{Scope, Separator, SkeletonState};
 
 impl Parser {
     /// Parses the file that describes the automaton whose skeleton
@@ -48,171 +49,374 @@ impl Parser {
     ///
     ///     }
     ///
-    pub fn parse<'a>(program: String) -> Option<Automaton> {
-        let mut parser = Self::new(prog_preprocessor(program));
-        println!("\nProg to parse: {{\n{}\n}}\n", parser.program_iter);
-        let mut obj_name_state = [
-            State::Type,
-            State::AutomatonType,
-            State::States,
-            State::Transitions,
-            State::BulkTests,
-        ].iter();
+    pub fn parse<'a>(program: String) -> Automaton {
+        // Creates a parser for to parse the skeleton of the program
+        let mut skeleton_parser = Self::new(Self::prog_preprocessor(program));
 
-        let mut automaton_type: AutomatonType;
-        let mut created_nodes: Vec<Rc<Node>> = vec![];
+        // Represents the order it expects the files 
+        // skeleton should be in when parsed
+        let mut skeleton_states = [
+            SkeletonState::Type,
+            SkeletonState::AutomatonType,
+            SkeletonState::States,
+            SkeletonState::Transitions,
+            SkeletonState::BulkTests,
+        ]
+            .iter();
 
-        while parser.can_consume() {
-            let user_state = Self::extract_obj_state(&mut parser, &mut obj_name_state);
+        // Vars used to build the automaton
+        let mut automaton_type: Option<AutomatonType> = None;
+        let mut state_list: Vec<Rc<State>> = vec![];
+        let mut accepting_strings: Vec<String> = vec![];
+        let mut rejecting_strings: Vec<String> = vec![];
 
-            println!("State:\t{:?}", user_state);
+        // Start the parser       
+        while skeleton_parser.can_consume() {
+            // Get the name of the skeleton section passed in
+            let skeleton_state =
+                Self::extract_skeleton_state_name(&mut skeleton_parser, &mut skeleton_states);
 
-            parser.try_consume_separator(Separator::COLUMN).unwrap();
+            // Read the separator 
+            skeleton_parser.try_consume_separator(Separator::COLUMN).unwrap();
 
-            match user_state {
-                State::Type => {
-                    let automaton = parser.try_consume_name().unwrap().to_ascii_uppercase();
-
-                    automaton_type = match automaton.as_str() {
+            // Check the state and act accordingly
+            match skeleton_state {
+                SkeletonState::Type => {
+                    // Read the name of the automaton and match accordingly
+                    let automaton = skeleton_parser.try_consume_name().unwrap().to_ascii_uppercase();
+                    automaton_type = Some(match automaton.as_str() {
                         "DFA" => DFA,
                         "NFA" => NFA,
                         "PDA" => PDA,
                         _ => panic!("Could not figure out the name of the automaton being used"),
-                    };
-
-                    println!("AutomatonType: {:?}", automaton_type);
+                    });
                 }
-                State::AutomatonType => {
-                    let _ = parser.try_consume_scope(Scope::CurlyBracket).unwrap();
+                SkeletonState::AutomatonType => {
+                    let _ = skeleton_parser.try_consume_scope(Scope::CurlyBracket).unwrap();
                 }
-                State::States => {
-                    let mut nodes_parser = parser.try_consume_scope(Scope::CurlyBracket).unwrap();
+                SkeletonState::States => {
+                    let mut state_parser = skeleton_parser.try_consume_scope(Scope::CurlyBracket).unwrap();
 
-                    // Process each node
-                    while nodes_parser.can_consume() {
-                        let state_name = nodes_parser.try_consume_name().unwrap();
+                    // Process each state
+                    while state_parser.can_consume() {
+                        let state_name = state_parser.try_consume_name().unwrap();
+
                         let mut position = Position { x: 0.0, y: 0.0 };
-                        let mut is_accepted = false;
+                        let mut is_accept_state = false;
 
-                        nodes_parser.try_consume_separator(Separator::COLUMN).unwrap();
+                        state_parser
+                            .try_consume_separator(Separator::COLUMN)
+                            .unwrap();
 
-                        // Parse the node info
-                        nodes_parser
+                        // Parse the state info
+                        state_parser
                             .try_consume_scope(Scope::CurlyBracket)
                             .unwrap()
                             .program_iter
                             .split(',')
                             .for_each(|line: &str| {
-                                let info: Vec<&str> = line
-                                    .split(':')
-                                    .collect::<Vec<&str>>();
+                                let info: Vec<&str> = line.split(':').collect::<Vec<&str>>();
 
                                 assert_eq!(info.len(), 2, "Info for the node is not a pair");
 
                                 match info[0] {
-                                    "\"isAccept\"" => is_accepted = (*info[1]) == *"true",
+                                    "\"isAccept\"" => is_accept_state = (*info[1]) == *"true",
                                     "\"top\"" => position.y = (*info[1]).parse::<f64>().unwrap(),
                                     "\"left\"" => position.x = (*info[1]).parse::<f64>().unwrap(),
                                     _ => { /* displayId do nothing */ }
                                 }
                             });
 
-                        created_nodes.push(Rc::new(Node::new(
+                        // Create the nodes and add them to a node list
+                        state_list.push(Rc::new(State::new(
                             state_name,
                             position,
-                            is_accepted,
-                            vec![],
+                            is_accept_state,
+                            RefCell::new(vec![]),
                         )));
 
-                        let _ = nodes_parser.try_consume_separator(Separator::COMMA);
+                        let _ = state_parser.try_consume_separator(Separator::COMMA);
                     }
                 }
-                State::Transitions => {
-                    let x = parser.try_consume_scope(Scope::BoxBracket).unwrap();
-                    println!(
-                        "Scope content:\t{}",
-                        if x.program_iter.len() == 0 {
-                            "Empty Scope"
+                SkeletonState::Transitions => {
+                    let mut transition_scope_parser =
+                        skeleton_parser.try_consume_scope(Scope::BoxBracket).unwrap();
+
+                    let mut state_a: Rc<State>;
+                    let mut state_b: Rc<State>;
+                    let mut label: Vec<char>;
+
+                    let mut transition_iter_count = 1;
+                    // Parse each transition
+                    while transition_scope_parser.can_consume() {
+                        // Get the info of the transition parsing
+                        let mut transition_parser = transition_scope_parser
+                            .try_consume_scope(Scope::CurlyBracket)
+                            .unwrap();
+
+                        let transition = transition_parser.try_consume_name().unwrap();
+                        if "stateA" == transition // PDA name 
+                            || "state_a" == transition // DFA | NFA name 
+                        {
+                            transition_parser
+                                .try_consume_separator(Separator::COLUMN)
+                                .unwrap();
+
+                            let state_a_name = transition_parser.try_consume_name().unwrap();
+
+                            // Find the state specified in the transition from the list of states
+                            state_a = Self::find_state_by_id(&state_list, state_a_name.as_str())
+                                .expect(&format!(
+                                    "Cannot find state_a referenced in transition {}",
+                                    state_a_name.as_str()
+                                ))
                         } else {
-                            &x.program_iter
+                            panic!(
+                                "Missing state_a transition name for transition. On iteration count {}",
+                                transition_iter_count
+                            )
                         }
-                    )
-                }
-                State::BulkTests => {
-                    let x = parser.try_consume_scope(Scope::CurlyBracket).unwrap();
-                    println!(
-                        "Scope content:\t{}",
-                        if x.program_iter.len() == 0 {
-                            "Empty Scope"
+
+                        let _ = transition_parser.try_consume_separator(Separator::COMMA);
+
+                        if "label" == transition_parser.try_consume_name().unwrap().as_str() {
+                            transition_parser
+                                .try_consume_separator(Separator::COLUMN)
+                                .unwrap();
+
+                            // Parse the separator used
+                            label = transition_parser
+                                .try_consume_name()
+                                .unwrap()
+                                .split(',')
+                                .into_iter()
+                                .map(|str| {
+                                    str.chars().nth(0).expect("Cannot have an empty transition")
+                                })
+                                .collect::<Vec<char>>();
+
+                            // Check if the label is either a (DFA|NFA) Or a PDA
+                            assert!(
+                                label.len() == 1 || label.len() == 3,
+                                "Cannot recognise transition label used"
+                            );
                         } else {
-                            &x.program_iter
+                            panic!(
+                                "Missing label transition name for transition. On iteration count {}",
+                                transition_iter_count
+                            )
                         }
-                    )
+
+                        let _ = transition_parser.try_consume_separator(Separator::COMMA);
+
+                        let transition = transition_parser.try_consume_name().unwrap();
+                        if "stateB" == transition  // PDA name  
+                            || "state_b" == transition  // NFA | DFA name
+                        {
+                            transition_parser
+                                .try_consume_separator(Separator::COLUMN)
+                                .unwrap();
+
+                            let state_b_name = transition_parser.try_consume_name().unwrap();
+
+                            // Find the state specified in the transition from the list of states
+                            state_b = Self::find_state_by_id(&state_list, state_b_name.as_str())
+                                .expect(&format!(
+                                    "Cannot find state_b referenced in transition {}",
+                                    state_b_name.as_str()
+                                ))
+                        } else {
+                            panic!(
+                                "Missing state_b transition name for transition. On iteration count {}",
+                                transition_iter_count
+                            )
+                        }
+
+                        // Resolve label symbols 
+                        let mut push: Option<Symbol> = None;
+                        let mut symbol: Symbol;
+                        let mut pop: Option<Symbol> = None;
+
+                        // Applicable for NFAs, DFAs & PDAs
+                        symbol = if label[0] == 'ϵ' {
+                            Symbol::EPSILON
+                        } else {
+                            Symbol::CHAR(label[0])
+                        };
+
+                        // For PDAs only
+                        if label.len() == 3 {
+                            symbol = if label[0] == 'ϵ' {
+                                Symbol::EPSILON
+                            } else {
+                                Symbol::CHAR(label[0])
+                            };
+                            pop = Some(if label[1] == 'ϵ' {
+                                Symbol::EPSILON
+                            } else {
+                                Symbol::CHAR(label[1])
+                            });
+                            push = Some(if label[2] == 'ϵ' {
+                                Symbol::EPSILON
+                            } else {
+                                Symbol::CHAR(label[2])
+                            });
+                        }
+
+                        // Create the transition
+                        state_a
+                            .add_to_transition_table(Transition::new(
+                                state_b,
+                                symbol,
+                                pop,
+                                push,
+                            ));
+
+                        let _ = transition_scope_parser.try_consume_separator(Separator::COMMA);
+                        transition_iter_count += 1;
+                    }
                 }
-                _ => panic!("User state can't be matched for {:?}", user_state),
+                SkeletonState::BulkTests => {
+                    let mut bulk_test_parser =
+                        skeleton_parser.try_consume_scope(Scope::CurlyBracket).unwrap();
+
+                    // Find all accepting strings
+                    accepting_strings =
+                        if "accept" == bulk_test_parser.try_consume_name().unwrap().as_str() {
+                            bulk_test_parser
+                                .try_consume_separator(Separator::COLUMN)
+                                .unwrap();
+
+                            // Parse accepting strings
+                            bulk_test_parser
+                                .try_consume_name()
+                                .unwrap()
+                                .split("\\n")
+                                .map(|accepting_strings| String::from(accepting_strings))
+                                .collect::<Vec<String>>()
+                        } else {
+                            panic!("No Accepting strings found")
+                        };
+
+                    let _ = bulk_test_parser.try_consume_separator(Separator::COMMA);
+
+                    // Find all rejecting strings
+                    rejecting_strings =
+                        if "reject" == bulk_test_parser.try_consume_name().unwrap().as_str() {
+                            bulk_test_parser
+                                .try_consume_separator(Separator::COLUMN)
+                                .unwrap();
+
+                            // Parse rejecting strings
+                            bulk_test_parser
+                                .try_consume_name()
+                                .unwrap()
+                                .split("\\n")
+                                .map(|rejecting_strings| String::from(rejecting_strings))
+                                .collect::<Vec<String>>()
+                        } else {
+                            panic!("No rejecting strings found")
+                        };
+                }
+                _ => panic!("User state can't be matched for {:?}", skeleton_state),
             }
 
-            let _ = parser.try_consume_separator(Separator::COMMA);
-            println!(
-                "Program_cursor_position at index(Not zero indexed):\t{}",
-                parser.cursor
-            );
-            println!()
+            let _ = skeleton_parser.try_consume_separator(Separator::COMMA);
         }
 
-        assert_eq!(
-            parser.program_iter.len(),
-            0,
-            "Parser was not empty after reading the program"
-        );
+        // Final checks
+        {
+            assert_eq!(
+                skeleton_parser.program_iter.len(),
+                0,
+                "Parser was not empty after reading the program"
+            );
 
-        println!("{:#?}", created_nodes);
+            assert_eq!(
+                skeleton_states.next(),
+                None,
+                "Not all fields were provided in the file"
+            );
+        }
 
-        None
+        dbg!(&state_list);
+
+        dbg!(&accepting_strings);
+        dbg!(&rejecting_strings);
+
+        // Build the final automaton
+        Automaton::new(
+            // This should never fail as long as the skeleton_sate is correctly implemented
+            // and the match on sate_type is also correct
+            automaton_type
+                .expect("Automaton type was never set"),
+            Self::find_state_by_id(&state_list, "start")
+                .expect("No Start state found"),
+            false,
+            state_list // Create a list of all accepting states
+                .iter()
+                .filter(|node| node.is_accept_state)
+                .cloned()
+                .collect::<Vec<Rc<State>>>(),
+            Tests {
+                accepting_strings,
+                rejecting_strings,
+            },
+        )
     }
 
-    /// Extracts object name from the parser
-    fn extract_obj_state(parser: &mut Parser, obj_name_state: &mut Iter<State>) -> State {
-        let obj_name = parser.try_consume_name().unwrap();
-
-        // Find the current state to parse from the input
-        let user_state = State::from_string(&obj_name).expect(&format!(
-            "{}",
-            ObjNameNotFound(format!(
-                "Object name found is not a recognisable. Object name found is '{}'",
-                obj_name
-            ))
-        ));
-
-        // Find the expected state to parse
-        let parsers_expected_state = obj_name_state.next()
-            .expect(&format!("{}", ObjNameOverFlow(format!(
-                "Tried to parse object name but has now exceeded number of states parsable state tried parsing was {}", obj_name
-            ))));
-
-        // Makes sure states match
-        assert_eq!(
-            user_state,
-            *parsers_expected_state,
-            "{}",
-            ObjNameMismatch(format!(
-                "Object name trying to parse differs from the expected\n\
-Expected : {:?}\n\
-Found: {:?}",
-                *parsers_expected_state, user_state
-            ))
-        );
-        user_state
-    }
-
+    /// Creates a new Parser from a program string
     fn new(program: String) -> Parser {
         Parser {
             program_iter: program,
             cursor: 0,
         }
     }
+
+    /// Checks if the parser can still be used
     fn can_consume(&self) -> bool {
         self.program_iter.len() != 0
+    }
+
+
+    /// Define a function to search for a node by its ID
+    fn find_state_by_id(states: &Vec<Rc<State>>, target_id: &str) -> Option<Rc<State>> {
+        states.iter().find(|node| node.id == target_id).cloned()
+    }
+ 
+    /// Extracts object name from the parser
+    fn extract_skeleton_state_name(parser: &mut Parser, obj_name_state: &mut Iter<SkeletonState>) -> SkeletonState {
+        let skeleton_state_name = parser.try_consume_name().unwrap();
+
+        // Find the current state to parse from the input
+        let skeleton_state = SkeletonState::from_string(&skeleton_state_name).expect(&format!(
+            "{}",
+            ObjNameNotFound(format!(
+                "Object name found is not a recognisable. Object name found is '{}'",
+                skeleton_state_name
+            ))
+        ));
+
+        // Find the expected state to parse
+        let parsers_expected_state = obj_name_state.next()
+            .expect(&format!("{}", ObjNameOverFlow(format!(
+                "Tried to parse object name but has now exceeded number of states parsable state tried parsing was {}", skeleton_state_name
+            ))));
+
+        // Makes sure states match
+        assert_eq!(
+            skeleton_state,
+            *parsers_expected_state,
+            "{}",
+            ObjNameMismatch(format!(
+                "Object name trying to parse differs from the expected\n\
+Expected : {:?}\n\
+Found: {:?}",
+                *parsers_expected_state, skeleton_state
+            ))
+        );
+
+        skeleton_state
     }
 
     /// Try to consume the name of the objet to be parsed
@@ -226,9 +430,12 @@ Found: {:?}",
         let mut prog_iter = self.program_iter.chars().peekable();
 
         // Tries to consume the starting quotation marks
-        let first_char = prog_iter.next().ok_or(OutOfInput(
-            "Tried to read object name but no input is found".to_string(),
-        )).unwrap();
+        let first_char = prog_iter
+            .next()
+            .ok_or(OutOfInput(
+                "Tried to read object name but no input is found".to_string(),
+            ))
+            .unwrap();
 
         // Validate that you can start reading the name of the object
         if first_char != quotation_marks {
@@ -244,35 +451,38 @@ Found: {:?}",
         // Create object name and consumes the closing quotes
         // reason why? refer to
         // https://www.reddit.com/r/rust/comments/x05yn5/make_take_while_not_consume_last_element_where_it/
-        let obj_name = prog_iter
+        let string_retrieved = prog_iter
             .by_ref()
             .take_while(|&c| c != quotation_marks)
             .collect::<String>();
 
         // + 2 for the open and closing quotation
-        let next_cursor_pos = obj_name.len() as u32 + 2;
+        let next_cursor_pos = string_retrieved.len() as u32 + 2;
 
-        if obj_name.len() == 0 // No name within the quotation
+        if string_retrieved.len() == 0 // No name within the quotation
             // No closing quotation was found
-            || obj_name.len() == remaining_prog_len
+            || string_retrieved.len() == remaining_prog_len
         {
             Err(ObjNameSyntaxErr(format!(
-                "Missing object name where expected. Error at prog index range {:?}\nBut found {}",
+                "Missing object name where expected. Error at prog index range {:?} But found {}",
                 [(self.cursor + 1)..(next_cursor_pos)],
-                obj_name
+                string_retrieved
             )))
         } else {
+            
             // If parsing succeeded
             // Replace the string with the leftover strings in the iterator
             self.program_iter = prog_iter.collect::<String>();
+            
             // Advance the cursor read
             self.cursor += next_cursor_pos;
 
-            Ok(obj_name)
+            Ok(string_retrieved)
         }
     }
 
-    /// Consumes a column separator from the input
+
+    /// Consumes a [Separator] from the input
     fn try_consume_separator(&mut self, separator: Separator) -> Result<(), ParserError> {
         let mut prog_iter = self.program_iter.chars();
 
@@ -289,18 +499,24 @@ Found: {:?}",
             separator, self.cursor
         )))
     }
+
+    /// Consumes a scope returning a parser that iterates over its contents
+    /// Scope is anything withing the brackets described in the [Scope] struct 
     fn try_consume_scope(&mut self, scope: Scope) -> Result<Parser, ParserError> {
         let mut prog_iter = self.program_iter.chars().peekable();
 
         // Tries to consume the starting quotation marks
-        let opening_scope_char = prog_iter.next().ok_or(ScopeError(
-            "Tried to parse scope, but no input was found".to_string(),
-        )).unwrap();
+        let opening_scope_char = prog_iter
+            .next()
+            .ok_or(ScopeError(
+                "Tried to parse scope, but no input was found".to_string(),
+            ))
+            .unwrap();
 
         // Validate that you can start reading the name of the object
         if opening_scope_char != scope.into() {
             return Err(ScopeError(format!(
-                "Expected to parse an opening scope {:?} but found \"{}\" at index {}",
+                "Expected to parse an opening scope {:?} but found '{}' at index {}",
                 scope, opening_scope_char, self.cursor
             )));
         }
@@ -335,8 +551,8 @@ Found: {:?}",
         // + 2 for the open and closing scope
         self.cursor += inner_scope_content.len() as u32 + 2;
 
-        if inner_scope_content.len() == remaining_prog_len
         // Missing end scope
+        if inner_scope_content.len() == remaining_prog_len
         {
             return Err(ScopeError("No closing scope was found".parse().unwrap()));
         }
@@ -346,32 +562,37 @@ Found: {:?}",
             cursor: start_scope_cursor,
         })
     }
-}
 
-fn prog_preprocessor(program: String) -> String {
-    // Remove new lines and spaces
-    let binding = Regex::new(r"[\r\n\s*]")
-        .expect("Failed to create program preprocessor regex")
-        .replace_all(&program, "")
-        .to_string();
+    /// Performs a full cleanup on the input program to remove new lines and spaces
+    fn prog_preprocessor(program: String) -> String {
+        // Remove new lines and spaces
+        let cleaned_up_string = Regex::new(r"[\r\n\s*]")
+            .expect("Failed to create program preprocessor regex")
+            .replace_all(&program, "")
+            .to_string();
 
-    let mut prog = binding.chars();
+        let mut prog = cleaned_up_string.chars();
 
-    assert_eq!(
-        prog.nth(0),
-        Some('{'),
-        "Program doesnt start with opening curly braces"
-    );
-    assert_eq!(
-        prog.last(),
-        Some('}'),
-        "Program doesnt emd with closing curly braces"
-    );
+        assert_eq!(
+            prog.nth(0),
+            Some('{'),
+            "Program doesnt start with opening curly braces"
+        );
+        assert_eq!(
+            prog.last(),
+            Some('}'),
+            "Program doesnt emd with closing curly braces"
+        );
 
-    // Remove the open and closing curly
-    let new_prog = binding[1..(binding.len() - 1)].to_string();
+        // Remove the open and closing curly
+        let new_prog = cleaned_up_string[1..(cleaned_up_string.len() - 1)].to_string();
 
-    assert_ne!(new_prog.len(), 0, "Invalid program as Program given is empty");
+        assert_ne!(
+            new_prog.len(),
+            0,
+            "Invalid program as Program given is empty"
+        );
 
-    new_prog
+        new_prog
+    }
 }

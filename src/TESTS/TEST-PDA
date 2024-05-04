@@ -2,21 +2,21 @@
   "type": "PDA",
   "pda": {
     "transitions": {
-      "start": {
-        "A": {
-          "B": [
-            {
-              "state": "s0",
-              "stackPushChars": "C"
-            }
-          ]
-        }
-      },
       "s0": {
         "A": {
           "B": [
             {
               "state": "start",
+              "stackPushChars": "C"
+            }
+          ]
+        }
+      },
+      "start": {
+        "A": {
+          "B": [
+            {
+              "state": "s0",
               "stackPushChars": ""
             }
           ]
@@ -25,31 +25,31 @@
     },
     "startState": "start",
     "acceptStates": [
-      "s0",
-      "start"
+      "start",
+      "s0"
     ]
   },
   "states": {
-    "start": {
-      "isAccept": true
-    },
     "s0": {
       "isAccept": true,
-      "top": 274.66667650585936,
-      "left": 213.66667650585939,
+      "top": 278.66667650585936,
+      "left": 229.66667650585939,
       "displayId": "s0"
+    },
+    "start": {
+      "isAccept": true
     }
   },
   "transitions": [
     {
-      "stateA": "start",
+      "stateA": "s0",
       "label": "A,B,C",
-      "stateB": "s0"
+      "stateB": "start"
     },
     {
-      "stateA": "s0",
+      "stateA": "start",
       "label": "A,B,ϵ",
-      "stateB": "start"
+      "stateB": "s0"
     }
   ],
   "bulkTests": {
