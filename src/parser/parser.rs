@@ -1,16 +1,20 @@
+use std::rc::Rc;
 use std::slice::Iter;
 
 use regex::Regex;
 
+use automaton_graph::Node;
+
+use crate::automaton_graph;
+use crate::automaton_graph::{Automaton, AutomatonType, Position};
 use crate::automaton_graph::AutomatonType::{DFA, NFA, PDA};
-use crate::automaton_graph::{Automaton, AutomatonType};
+use crate::parser::{Parser, ParserError};
 use crate::parser::parser::ParserError::{
     MissingObjSeparator, NoObjName, ObjNameMismatch, ObjNameNotFound, ObjNameOverFlow,
     ObjNameSyntaxErr,
 };
-use crate::parser::utils::{Scope, Separator, State};
 use crate::parser::ParserError::{OutOfInput, ScopeError};
-use crate::parser::{Parser, ParserError};
+use crate::parser::utils::{Scope, Separator, State};
 
 impl Parser {
     /// Parses the file that describes the automaton whose skeleton
@@ -44,7 +48,7 @@ impl Parser {
     ///
     ///     }
     ///
-    pub fn parse<'a>(program: String) -> Option<Automaton<'a>> {
+    pub fn parse<'a>(program: String) -> Option<Automaton> {
         let mut parser = Self::new(prog_preprocessor(program));
         println!("\nProg to parse: {{\n{}\n}}\n", parser.program_iter);
         let mut obj_name_state = [
@@ -53,17 +57,17 @@ impl Parser {
             State::States,
             State::Transitions,
             State::BulkTests,
-        ]
-        .iter();
+        ].iter();
 
         let mut automaton_type: AutomatonType;
+        let mut created_nodes: Vec<Rc<Node>> = vec![];
 
         while parser.can_consume() {
             let user_state = Self::extract_obj_state(&mut parser, &mut obj_name_state);
 
             println!("State:\t{:?}", user_state);
 
-            parser.consume_separator(Separator::COLUMN).unwrap();
+            parser.try_consume_separator(Separator::COLUMN).unwrap();
 
             match user_state {
                 State::Type => {
@@ -79,29 +83,54 @@ impl Parser {
                     println!("AutomatonType: {:?}", automaton_type);
                 }
                 State::AutomatonType => {
-                    let x = parser.consume_scope(Scope::CurlyBracket).unwrap();
-                    println!(
-                        "Scope content:\t{}",
-                        if x.program_iter.len() == 0 {
-                            "Empty Scope"
-                        } else {
-                            &x.program_iter
-                        }
-                    )
+                    let _ = parser.try_consume_scope(Scope::CurlyBracket).unwrap();
                 }
                 State::States => {
-                    let x = parser.consume_scope(Scope::CurlyBracket).unwrap();
-                    println!(
-                        "Scope content:\t{}",
-                        if x.program_iter.len() == 0 {
-                            "Empty Scope"
-                        } else {
-                            &x.program_iter
-                        }
-                    )
+                    let mut nodes_parser = parser.try_consume_scope(Scope::CurlyBracket).unwrap();
+
+                    // Process each node
+                    while nodes_parser.can_consume() {
+                        let state_name = nodes_parser.try_consume_name().unwrap();
+                        let mut position = Position { x: 0.0, y: 0.0 };
+                        let mut is_accepted = false;
+
+                        nodes_parser.try_consume_separator(Separator::COLUMN).unwrap();
+
+                        // Parse the node info
+                        nodes_parser
+                            .try_consume_scope(Scope::CurlyBracket)
+                            .unwrap()
+                            .program_iter
+                            .split(',')
+                            .collect::<Vec<&str>>()
+                            .iter()
+                            .for_each(|&line| {
+                                let info: Vec<&str> = line
+                                    .split(':')
+                                    .collect::<Vec<&str>>();
+
+                                assert_eq!(info.len(), 2, "Info for the node is not a pair");
+
+                                match info[0] {
+                                    "\"isAccept\"" => is_accepted = (*info[1]) == *"true",
+                                    "\"top\"" => position.y = (*info[1]).parse::<f64>().unwrap(),
+                                    "\"left\"" => position.x = (*info[1]).parse::<f64>().unwrap(),
+                                    _ => { /* displayId do nothing */ }
+                                }
+                            });
+                        
+                        created_nodes.push(Rc::new(Node::new(
+                            state_name,
+                            position,
+                            is_accepted,
+                            vec![]
+                        )));
+
+                        let _ = nodes_parser.try_consume_separator(Separator::COMMA);
+                    }
                 }
                 State::Transitions => {
-                    let x = parser.consume_scope(Scope::BoxBracket).unwrap();
+                    let x = parser.try_consume_scope(Scope::BoxBracket).unwrap();
                     println!(
                         "Scope content:\t{}",
                         if x.program_iter.len() == 0 {
@@ -112,7 +141,7 @@ impl Parser {
                     )
                 }
                 State::BulkTests => {
-                    let x = parser.consume_scope(Scope::CurlyBracket).unwrap();
+                    let x = parser.try_consume_scope(Scope::CurlyBracket).unwrap();
                     println!(
                         "Scope content:\t{}",
                         if x.program_iter.len() == 0 {
@@ -125,7 +154,7 @@ impl Parser {
                 _ => panic!("User state can't be matched for {:?}", user_state),
             }
 
-            let _ = parser.consume_separator(Separator::COMMA);
+            let _ = parser.try_consume_separator(Separator::COMMA);
             println!(
                 "Program_cursor_position at index(Not zero indexed):\t{}",
                 parser.cursor
@@ -138,6 +167,8 @@ impl Parser {
             0,
             "Parser was not empty after reading the program"
         );
+        
+        println!("{:#?}",created_nodes);
 
         None
     }
@@ -182,7 +213,7 @@ Found: {:?}",
             cursor: 0,
         }
     }
-    fn can_consume(&mut self) -> bool {
+    fn can_consume(&self) -> bool {
         self.program_iter.len() != 0
     }
 
@@ -199,7 +230,7 @@ Found: {:?}",
         // Tries to consume the starting quotation marks
         let first_char = prog_iter.next().ok_or(OutOfInput(
             "Tried to read object name but no input is found".to_string(),
-        ))?;
+        )).unwrap();
 
         // Validate that you can start reading the name of the object
         if first_char != quotation_marks {
@@ -244,7 +275,7 @@ Found: {:?}",
     }
 
     /// Consumes a column separator from the input
-    fn consume_separator(&mut self, separator: Separator) -> Result<(), ParserError> {
+    fn try_consume_separator(&mut self, separator: Separator) -> Result<(), ParserError> {
         let mut prog_iter = self.program_iter.chars();
 
         if let Some(c) = prog_iter.next() {
@@ -260,13 +291,13 @@ Found: {:?}",
             separator, self.cursor
         )))
     }
-    fn consume_scope(&mut self, scope: Scope) -> Result<Parser, ParserError> {
+    fn try_consume_scope(&mut self, scope: Scope) -> Result<Parser, ParserError> {
         let mut prog_iter = self.program_iter.chars().peekable();
 
         // Tries to consume the starting quotation marks
         let opening_scope_char = prog_iter.next().ok_or(ScopeError(
             "Tried to parse scope, but no input was found".to_string(),
-        ))?;
+        )).unwrap();
 
         // Validate that you can start reading the name of the object
         if opening_scope_char != scope.into() {
@@ -280,7 +311,7 @@ Found: {:?}",
         let remaining_prog_len = self.program_iter.len() - 1;
 
         let mut scope_counter = 1; // Initialized at 1 because the opening scope has been read
-                                   // Collects scope contents
+        // Collects scope contents
         let inner_scope_content = prog_iter
             .by_ref()
             .take_while(|&c| {
@@ -340,5 +371,9 @@ fn prog_preprocessor(program: String) -> String {
     );
 
     // Remove the open and closing curly
-    binding[1..(binding.len() - 1)].to_string()
+    let new_prog = binding[1..(binding.len() - 1)].to_string();
+
+    assert_ne!(new_prog.len(), 0, "Invalid program as Program given is empty");
+
+    new_prog
 }
