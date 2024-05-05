@@ -46,6 +46,7 @@ pub struct Position {
 #[derive(Debug)]
 pub struct State {
     pub id: String,
+    pub alt_id: String,
     pub position: Position,
     pub is_accept_state: bool,
     /// The transitions that can be taken form this state

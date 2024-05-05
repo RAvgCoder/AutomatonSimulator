@@ -9,12 +9,14 @@ use crate::automaton_graph::{
 impl State {
     pub fn new(
         id: String,
+        alt_id: String,
         position: Position,
         is_accept_state: bool,
         transition_table: RefCell<Vec<Transition>>,
     ) -> State {
         State {
             id,
+            alt_id,
             position,
             is_accept_state,
             transition_edges: transition_table,
