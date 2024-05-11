@@ -49,7 +49,7 @@ impl Parser {
     ///
     ///     }
     ///
-    pub fn parse<'a>(program: String) -> Automaton {
+    pub fn parse(program: String) -> Automaton {
         // Creates a parser for to parse the skeleton of the program
         let mut skeleton_parser = Self::new(Self::prog_preprocessor(program))
             .set_counter(1); // Read an opening scope at the beginning
@@ -409,6 +409,7 @@ impl Parser {
                 .filter(|node| node.is_accept_state)
                 .cloned()
                 .collect::<Vec<Rc<State>>>(),
+            state_list,
             Tests {
                 accepting_strings,
                 rejecting_strings,

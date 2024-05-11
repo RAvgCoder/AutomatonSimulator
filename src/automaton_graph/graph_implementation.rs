@@ -87,6 +87,7 @@ impl Automaton {
         start_state: Rc<State>,
         is_in_accept_state: bool,
         accept_states: Vec<Rc<State>>,
+        all_states: Vec<Rc<State>>,
         tests: Tests,
     ) -> Automaton {
         Automaton {
@@ -94,7 +95,12 @@ impl Automaton {
             start_state,
             is_in_accept_state,
             accept_states,
+            all_states,
             tests,
         }
+    }
+
+    pub fn state_list(&self) -> &Vec<Rc<State>> {
+        &self.accept_states
     }
 }

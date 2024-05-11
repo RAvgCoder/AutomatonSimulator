@@ -12,7 +12,7 @@ pub enum Symbol {
 }
 
 /// Represents an automaton type
-#[derive(Debug)]
+#[derive(Debug,Copy, Clone)]
 pub enum AutomatonType {
     DFA,
     NFA,
@@ -37,8 +37,8 @@ pub struct Transition {
 /// Position on the screen to be rendered
 #[derive(Copy, Clone, Debug)]
 pub struct Position {
-    pub(crate) x: f64,
-    pub(crate) y: f64,
+    pub x: f64,
+    pub y: f64,
 }
 
 /// Node for the graphs that represents itself,
@@ -56,10 +56,11 @@ pub struct State {
 /// Represents the graph of the automaton to
 /// be simulated
 pub struct Automaton {
-    automaton_type: AutomatonType,
+    pub automaton_type: AutomatonType,
     start_state: Rc<State>,
     is_in_accept_state: bool,
     accept_states: Vec<Rc<State>>,
+    all_states: Vec<Rc<State>>,
     tests: Tests,
 }
 
