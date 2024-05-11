@@ -1,64 +1,110 @@
 use std::io;
 
-pub mod pda_menu {
-    pub fn list() -> Box<[&'static str]> {
-        todo!()
-    }
+const END_LINE: &str = "\r\n";
 
-    pub fn table(command: u8, program: String) {}
-}
-
-pub mod nfa_menu {
-    pub fn list() -> Box<[&'static str]> {
-        todo!()
-    }
-
-    pub fn table(command: u8, program: String) {}
-}
-
-pub mod dfa_menu {
-    use crate::dfa::DFA;
-
-    pub fn list() -> Box<[&'static str]> {
-        let x = ["Reduce Dfa"];
-        Box::new(x)
-    }
-
-    pub fn table(command: u8, program: String) {
-        let dfa = DFA::new(program);
-
-        match command {
-            1 => dfa.reduce(),
-            _ => panic!("Error parsing command {}", command),
-        }
-    }
-}
-
-pub fn find_command_from_menu(menu: Box<[&str]>) -> u8 {
+pub fn find_command_from_menu(menu_option_list: &[MenuOptions]) -> MenuOptions {
     println!("Which of these operations do you want to perform");
-    for (idx, command) in menu.iter().enumerate() {
-        println!("{}):\t{}", idx + 1, command)
-    }
+    menu_option_list.iter().enumerate().for_each(|(idx, command)| {
+        println!("{}):\t{:?}", idx + 1, command)
+    });
 
     let mut command_idx = String::new();
     io::stdin()
         .read_line(&mut command_idx)
         .expect("Could not read command to be performed");
 
-    let command_idx = command_idx
-        .trim_end_matches(end_of_line())
-        .parse::<u8>()
+    let option_idx = command_idx
+        .trim_end_matches(END_LINE)
+        .parse::<usize>()
         .map_err(|why| format!("Could not parse command to a number {}", why))
         .unwrap_or_else(|err| panic!("{}", err));
 
-    if command_idx <= 0 || command_idx > menu.len() as u8 {
-        panic!("Invalid command {}", command_idx);
-    }
 
-    command_idx
+    *menu_option_list.get(option_idx - 1)
+        .expect(&format!("Invalid option {}", option_idx))
 }
 
-#[inline(always)]
-fn end_of_line() -> &'static str {
-    "\r\n"
+#[derive(Debug, Copy, Clone)]
+pub enum MenuOptions {
+    // DFA
+    SimulateDFA,
+    ReduceDFA,
+
+    // PDA
+    SimulatePDA,
+    GenerateCorrespondingGrammar,
+
+    // NFA
+    SimulateNFA,
+    SimplifyNFA,
+    NFAtoRegex,
+    NFAtoDFA,
+    RegexToNFA,
+}
+
+pub mod pda_menu {
+    use crate::automaton_graph::Automaton;
+    use crate::menus::MenuOptions;
+
+    const MENU_OPTIONS: [MenuOptions; 5] = [
+        MenuOptions::SimulateNFA,
+        MenuOptions::SimplifyNFA,
+        MenuOptions::NFAtoRegex,
+        MenuOptions::NFAtoDFA,
+        MenuOptions::RegexToNFA,
+    ];
+
+    pub(crate) fn list<'a>() -> &'a [MenuOptions] {
+        &MENU_OPTIONS
+    }
+
+    pub fn table(menu_option: MenuOptions, automaton: Automaton) {
+        match menu_option {
+            _ => panic!("{:?} not available for PDAs", menu_option),
+        }
+    }
+}
+
+pub mod nfa_menu {
+    use crate::automaton_graph::Automaton;
+    use crate::menus::MenuOptions;
+
+    const MENU_OPTIONS: [MenuOptions; 2] = [
+        MenuOptions::SimulatePDA,
+        MenuOptions::GenerateCorrespondingGrammar,
+    ];
+
+    pub(crate) fn list<'a>() -> &'a [MenuOptions] {
+        &MENU_OPTIONS
+    }
+
+    pub fn table(menu_option: MenuOptions, automaton: Automaton) {
+        match menu_option {
+            _ => panic!("{:?} not available for NFAs", menu_option),
+        }
+    }
+}
+
+pub mod dfa_menu {
+    use crate::automaton_graph::Automaton;
+    use crate::dfa::DFA;
+    use crate::menus::MenuOptions;
+
+    const MENU_OPTIONS: [MenuOptions; 2] = [
+        MenuOptions::ReduceDFA,
+        MenuOptions::SimulateDFA,
+    ];
+
+    pub fn table(menu_option: MenuOptions, automaton: Automaton) {
+        let dfa = DFA::new(automaton);
+
+        match menu_option {
+            MenuOptions::ReduceDFA => dfa.reduce(),
+            _ => panic!("{:?} not available for DFAs", menu_option),
+        }
+    }
+
+    pub(crate) fn list<'a>() -> &'a [MenuOptions] {
+        &MENU_OPTIONS
+    }
 }

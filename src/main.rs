@@ -1,22 +1,21 @@
 use std::fs::File;
-use std::io;
 use std::io::Read;
 
-use crate::automaton_graph::AutomatonType;
 use crate::automaton_graph::AutomatonType::{DFA, NFA, PDA};
+use crate::parser::Parser;
 
 mod automaton_graph;
 mod dfa;
 mod menus;
 mod parser;
 
+
+const END_LINE: &str = "\r\n";
+
 fn main() {
     println!("What is the absolute file path which contains the description of the automaton?");
-    let automaton_program = read_program();
-
-    println!("What type of automaton is this");
-    // let automaton_type = read_automaton_type();
-    let automaton_type = DFA;
+    let automaton = Parser::parse(read_program());
+    let automaton_type = automaton.automaton_type;
 
     let menu_idx = menus::find_command_from_menu(match automaton_type {
         DFA => menus::dfa_menu::list(),
@@ -25,35 +24,10 @@ fn main() {
     });
 
     match automaton_type {
-        DFA => menus::dfa_menu::table(menu_idx, automaton_program),
-        NFA => menus::nfa_menu::table(menu_idx, automaton_program),
-        PDA => menus::pda_menu::table(menu_idx, automaton_program),
+        DFA => menus::dfa_menu::table(menu_idx, automaton),
+        NFA => menus::nfa_menu::table(menu_idx, automaton),
+        PDA => menus::pda_menu::table(menu_idx, automaton),
     }
-}
-
-fn read_automaton_type() -> AutomatonType {
-    let mut automaton_type = String::new();
-    io::stdin()
-        .read_line(&mut automaton_type)
-        .expect("Failed to read the automaton type");
-
-    let automaton_type = match automaton_type
-        .trim_end_matches(end_of_line())
-        .to_uppercase()
-        .as_str()
-    {
-        "DFA" => DFA,
-        "NFA" => NFA,
-        "PDA" => PDA,
-        other => {
-            panic!(
-                "Cannot recognise automaton {} for types {:?}",
-                other,
-                vec![NFA, DFA, PDA]
-            );
-        }
-    };
-    automaton_type
 }
 
 fn read_program() -> String {
@@ -67,7 +41,7 @@ fn read_program() -> String {
     let mut prog = String::new();
 
     // Trim for windows input
-    File::open(file_path.trim_end_matches(end_of_line()))
+    File::open(file_path.trim_end_matches(END_LINE))
         .expect(&format!("Could not open the file {}", file_path))
         .read_to_string(&mut prog)
         .expect(&format!(
@@ -76,9 +50,4 @@ fn read_program() -> String {
         ));
 
     prog
-}
-
-#[inline(always)]
-fn end_of_line() -> &'static str {
-    "\r\n"
 }
