@@ -1,33 +1,17 @@
 use std::fmt;
 
-use crate::parser::ParserError;
+use crate::parser::{ParserError, Scope, Separator, SkeletonState};
 use crate::parser::ParserError::{
     MissingObjSeparator, NoObjName, ObjNameMismatch, ObjNameNotFound, ObjNameOverFlow,
     ObjNameSyntaxErr, OutOfInput, ScopeError, UnknownTransitionName,
 };
 
-/// Describes a separator used in the parser
-#[repr(u8)]
-#[derive(Debug, Copy, Clone)]
-pub(in crate::parser) enum Separator {
-    COMMA = b',',
-    COLUMN = b':',
-}
 
 impl Into<char> for Separator {
     /// Converts the separator from a u8 to a char equivalent
     fn into(self) -> char {
         self as u8 as char
     }
-}
-
-/// Represents an opening scope
-/// represented by "{" OR "["
-#[repr(u8)]
-#[derive(Debug, Copy, Clone)]
-pub(in crate::parser) enum Scope {
-    BoxBracket = b'[',
-    CurlyBracket = b'{',
 }
 
 impl Scope {
@@ -62,19 +46,6 @@ impl fmt::Display for ParserError {
             }
         }
     }
-}
-
-/// Represents the names that should all automatons share in the json
-/// format from the automaton simulator site
-#[derive(Debug, PartialOrd, PartialEq)]
-pub(in crate::parser) enum SkeletonState {
-    Type,
-    AutomatonType,
-    Transitions,
-    StartState,
-    AcceptStates,
-    States,
-    BulkTests,
 }
 
 impl SkeletonState {

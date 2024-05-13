@@ -9,13 +9,13 @@ use automaton_graph::State;
 use crate::automaton_graph;
 use crate::automaton_graph::{Automaton, AutomatonType, Position, Symbol, Tests, Transition};
 use crate::automaton_graph::AutomatonType::{DFA, NFA, PDA};
-use crate::parser::{Parser, ParserError};
+use crate::parser::{Parser, ParserError, Scope, Separator, SkeletonState};
 use crate::parser::parser::ParserError::{
     MissingObjSeparator, NoObjName, ObjNameMismatch, ObjNameNotFound, ObjNameOverFlow,
     ObjNameSyntaxErr,
 };
 use crate::parser::ParserError::{OutOfInput, ScopeError};
-use crate::parser::utils::{Scope, Separator, SkeletonState};
+
 
 impl Parser {
     /// Parses the file that describes the automaton whose skeleton
@@ -127,11 +127,7 @@ impl Parser {
                             .try_consume_scope(Scope::CurlyBracket)
                             .unwrap();
 
-                        println!();
-                        dbg!(&state_name);
                         let mut display_id_cursor = state_scope_parser.cursor + 1;
-                        dbg!(state_scope_parser.cursor);
-                        dbg!(display_id_cursor);
                         state_scope_parser
                             .program_iter
                             .split(',')
@@ -146,7 +142,6 @@ impl Parser {
                                     assert_eq!(info.len(), 2, "Info for the node is not a pair for iter count {}", iter_count);
                                     // Column + comma
                                     display_id_cursor += 2 + (info[0].len() + info[1].len()) as u32;
-                                    dbg!(display_id_cursor);
                                 }
 
 
@@ -392,10 +387,11 @@ impl Parser {
         }
 
         println!();
-        dbg!(state_list.len());
-        dbg!(&state_list);
         dbg!(&accepting_strings);
         dbg!(&rejecting_strings);
+        dbg!(&state_list);
+        dbg!(skeleton_parser.cursor);
+        dbg!(state_list.len());
 
         // Build the final automaton
         Automaton::new(
@@ -518,9 +514,8 @@ Found: {:?}",
         // + 2 for the open and closing quotation
         let next_cursor_pos = self.cursor + string_retrieved.len() as u32 + 2;
 
-        if string_retrieved.len() == 0 // No name within the quotation
-            // No closing quotation was found
-            || string_retrieved.len() == remaining_prog_len
+        // No closing quotation was found
+        if string_retrieved.len() == remaining_prog_len
         {
             Err(ObjNameSyntaxErr(format!(
                 "Missing object name where expected. Error at prog index range {:?} But found {}",
