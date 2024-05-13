@@ -1,15 +1,17 @@
 use std::collections::{HashMap, HashSet};
 
 use crate::automaton_graph::Automaton;
-use crate::dfa::DFA;
 use crate::dfa::dfa_reduction::equivalence_class::EquivalenceClass;
+use crate::dfa::DFA;
 
 impl DFA {
     pub fn reduce(&self) {
         // Map of sate name to transition names
-        let state_map: HashMap<String, Vec<String>> = Automaton::get_state_map(&self.automaton_graph);
+        let state_map: HashMap<String, Vec<String>> =
+            Automaton::get_state_map(&self.automaton_graph);
         // Break up into final and non-final states
-        let mut equiv_states_list: Vec<EquivalenceClass> = Self::get_final_and_non_final_states(&self.automaton_graph);
+        let mut equiv_states_list: Vec<EquivalenceClass> =
+            Self::get_final_and_non_final_states(&self.automaton_graph);
 
         let mut idx = 0;
         while idx < equiv_states_list.len() {
@@ -18,18 +20,24 @@ impl DFA {
             let mut sub_divisions: HashMap<String, Vec<String>> = HashMap::new();
 
             for class_state_id in equiv_state.class_state_ids() {
-                let class_name = state_map.get(class_state_id)
-                    .expect(&format!("Could not find state {} when performing subdivisions", class_state_id))
+                let class_name = state_map
+                    .get(class_state_id)
+                    .expect(&format!(
+                        "Could not find state {} when performing subdivisions",
+                        class_state_id
+                    ))
                     .iter()
                     .fold(String::new(), |mut acc, state_name| {
-                        acc.push_str(Self::find_equiv_class_name(state_name, &equiv_states_list).as_str());
+                        acc.push_str(
+                            Self::find_equiv_class_name(state_name, &equiv_states_list).as_str(),
+                        );
                         acc
                     });
 
                 // Add to map
                 sub_divisions
                     .entry(class_name) // Use the class_name name as the hashmap key
-                    // If the entry doesn't exist, insert a new vector 
+                    // If the entry doesn't exist, insert a new vector
                     .or_insert_with(Vec::new)
                     .push(class_state_id.clone()); // Add the class_state_id to the vector
             }
@@ -49,25 +57,26 @@ impl DFA {
                 //             .collect::<HashSet<String>>()
                 //     )
                 // }));
-                
+
                 for list in sub_divisions.values() {
                     equiv_states_list.push(EquivalenceClass::new(
                         list.iter()
                             .map(|string| string.clone())
-                            .collect::<HashSet<String>>()
+                            .collect::<HashSet<String>>(),
                     ))
                 }
 
                 // Rebuild all equivalence classes
                 idx = 0;
-            } else { idx += 1 }
+            } else {
+                idx += 1
+            }
         }
 
         dbg!(&equiv_states_list);
     }
 
-
-    /// returns a list of final and non_final equivalence_classes 
+    /// returns a list of final and non_final equivalence_classes
     /// respectively if they exist
     fn get_final_and_non_final_states(automaton: &Automaton) -> Vec<EquivalenceClass> {
         let mut final_states = HashSet::new();
@@ -98,15 +107,17 @@ impl DFA {
         state_name: &String,
         equiv_states_list: &Vec<EquivalenceClass>,
     ) -> String {
-        equiv_states_list.iter()
-            .find(|&equiv_class| {
-                equiv_class.class_state_ids().contains(state_name)
-            })
-            .expect(&format!("Could not find {} in any of the equivalence classes", state_name))
-            .class_name().clone()
+        equiv_states_list
+            .iter()
+            .find(|&equiv_class| equiv_class.class_state_ids().contains(state_name))
+            .expect(&format!(
+                "Could not find {} in any of the equivalence classes",
+                state_name
+            ))
+            .class_name()
+            .clone()
     }
 }
-
 
 mod equivalence_class {
     use std::collections::HashSet;
@@ -122,7 +133,9 @@ mod equivalence_class {
     impl EquivalenceClass {
         // Static counter to keep track of the next available class number
 
-        pub(in crate::dfa::dfa_reduction) fn new(class_state_ids: HashSet<String>) -> EquivalenceClass {
+        pub(in crate::dfa::dfa_reduction) fn new(
+            class_state_ids: HashSet<String>,
+        ) -> EquivalenceClass {
             // Increment the class counter
             unsafe {
                 let class_number = Self::get_next_class_number();
