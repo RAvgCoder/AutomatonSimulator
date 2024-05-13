@@ -13,6 +13,4 @@ impl DFA {
             automaton_graph: automaton,
         }
     }
-
-
 }

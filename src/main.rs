@@ -9,7 +9,6 @@ mod dfa;
 mod menus;
 mod parser;
 
-
 const END_LINE: &str = "\r\n";
 
 fn main() {

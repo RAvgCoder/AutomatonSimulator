@@ -28,7 +28,6 @@ pub(in crate::parser) enum Separator {
     COLUMN = b':',
 }
 
-
 /// Represents an opening scope
 /// represented by "{" OR "["
 #[repr(u8)]

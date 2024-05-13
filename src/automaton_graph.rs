@@ -12,7 +12,7 @@ pub enum Symbol {
 }
 
 /// Represents an automaton type
-#[derive(Debug,Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum AutomatonType {
     DFA,
     NFA,

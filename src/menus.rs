@@ -4,9 +4,10 @@ const END_LINE: &str = "\r\n";
 
 pub fn find_command_from_menu(menu_option_list: &[MenuOptions]) -> MenuOptions {
     println!("Which of these operations do you want to perform");
-    menu_option_list.iter().enumerate().for_each(|(idx, command)| {
-        println!("{}):\t{:?}", idx + 1, command)
-    });
+    menu_option_list
+        .iter()
+        .enumerate()
+        .for_each(|(idx, command)| println!("{}):\t{:?}", idx + 1, command));
 
     let mut command_idx = String::new();
     io::stdin()
@@ -19,8 +20,8 @@ pub fn find_command_from_menu(menu_option_list: &[MenuOptions]) -> MenuOptions {
         .map_err(|why| format!("Could not parse command to a number {}", why))
         .unwrap_or_else(|err| panic!("{}", err));
 
-
-    *menu_option_list.get(option_idx - 1)
+    *menu_option_list
+        .get(option_idx - 1)
         .expect(&format!("Invalid option {}", option_idx))
 }
 
@@ -90,10 +91,7 @@ pub mod dfa_menu {
     use crate::dfa::DFA;
     use crate::menus::MenuOptions;
 
-    const MENU_OPTIONS: [MenuOptions; 2] = [
-        MenuOptions::ReduceDFA,
-        MenuOptions::SimulateDFA,
-    ];
+    const MENU_OPTIONS: [MenuOptions; 2] = [MenuOptions::ReduceDFA, MenuOptions::SimulateDFA];
 
     pub fn table(menu_option: MenuOptions, automaton: Automaton) {
         let dfa = DFA::new(automaton);

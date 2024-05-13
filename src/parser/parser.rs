@@ -7,15 +7,14 @@ use regex::Regex;
 use automaton_graph::State;
 
 use crate::automaton_graph;
-use crate::automaton_graph::{Automaton, AutomatonType, Position, Symbol, Tests, Transition};
 use crate::automaton_graph::AutomatonType::{DFA, NFA, PDA};
-use crate::parser::{Parser, ParserError, Scope, Separator, SkeletonState};
+use crate::automaton_graph::{Automaton, AutomatonType, Position, Symbol, Tests, Transition};
 use crate::parser::parser::ParserError::{
     MissingObjSeparator, NoObjName, ObjNameMismatch, ObjNameNotFound, ObjNameOverFlow,
     ObjNameSyntaxErr,
 };
 use crate::parser::ParserError::{OutOfInput, ScopeError};
-
+use crate::parser::{Parser, ParserError, Scope, Separator, SkeletonState};
 
 impl Parser {
     /// Parses the file that describes the automaton whose skeleton
@@ -51,8 +50,7 @@ impl Parser {
     ///
     pub fn parse(program: String) -> Automaton {
         // Creates a parser for to parse the skeleton of the program
-        let mut skeleton_parser = Self::new(Self::prog_preprocessor(program))
-            .set_counter(1); // Read an opening scope at the beginning
+        let mut skeleton_parser = Self::new(Self::prog_preprocessor(program)).set_counter(1); // Read an opening scope at the beginning
 
         // Represents the order it expects the files
         // skeleton should be in when parsed
@@ -63,7 +61,7 @@ impl Parser {
             SkeletonState::Transitions,
             SkeletonState::BulkTests,
         ]
-            .iter();
+        .iter();
 
         // Vars used to build the automaton
         let mut automaton_type: Option<AutomatonType> = None;
@@ -123,9 +121,8 @@ impl Parser {
 
                         // Parse the state info
 
-                        let state_scope_parser = state_parser
-                            .try_consume_scope(Scope::CurlyBracket)
-                            .unwrap();
+                        let state_scope_parser =
+                            state_parser.try_consume_scope(Scope::CurlyBracket).unwrap();
 
                         let mut display_id_cursor = state_scope_parser.cursor + 1;
                         state_scope_parser
@@ -515,8 +512,7 @@ Found: {:?}",
         let next_cursor_pos = self.cursor + string_retrieved.len() as u32 + 2;
 
         // No closing quotation was found
-        if string_retrieved.len() == remaining_prog_len
-        {
+        if string_retrieved.len() == remaining_prog_len {
             Err(ObjNameSyntaxErr(format!(
                 "Missing object name where expected. Error at prog index range {:?} But found {}",
                 [(self.cursor)..(next_cursor_pos)],
@@ -577,7 +573,7 @@ Found: {:?}",
         let remaining_prog_len = self.program_iter.len() - 1;
 
         let mut scope_counter = 1; // Initialized at 1 because the opening scope has been read
-        // Collects scope contents
+                                   // Collects scope contents
         let inner_scope_content = prog_iter
             .by_ref()
             .take_while(|&c| {
@@ -608,10 +604,7 @@ Found: {:?}",
             return Err(ScopeError("No closing scope was found".parse().unwrap()));
         }
 
-        Ok(
-            Parser::new(inner_scope_content)
-                .set_counter(start_scope_cursor + 1)
-        )
+        Ok(Parser::new(inner_scope_content).set_counter(start_scope_cursor + 1))
     }
 
     /// Performs a full cleanup on the input program to remove new lines and spaces

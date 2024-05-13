@@ -109,24 +109,22 @@ impl Automaton {
         &self.all_states
     }
 
-    pub fn get_state_map(automaton: &Automaton) -> HashMap<String, Vec<String>>
-    {
-        automaton.all_states
+    pub fn get_state_map(automaton: &Automaton) -> HashMap<String, Vec<String>> {
+        automaton
+            .all_states
             .iter()
-            .fold(
-                HashMap::new(),
-                |mut hash_map, state| {
-                    hash_map.insert(
-                        state.id.clone(),
-                        // Create a vec of all transition ids from state
-                        state.transition_edges
-                            .borrow()
-                            .iter()
-                            .map(|transition| {
-                                transition.to().id.clone()
-                            }).collect::<Vec<String>>(),
-                    );
-                    hash_map
-                })
+            .fold(HashMap::new(), |mut hash_map, state| {
+                hash_map.insert(
+                    state.id.clone(),
+                    // Create a vec of all transition ids from state
+                    state
+                        .transition_edges
+                        .borrow()
+                        .iter()
+                        .map(|transition| transition.to().id.clone())
+                        .collect::<Vec<String>>(),
+                );
+                hash_map
+            })
     }
 }

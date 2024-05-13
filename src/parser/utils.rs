@@ -1,11 +1,10 @@
 use std::fmt;
 
-use crate::parser::{ParserError, Scope, Separator, SkeletonState};
 use crate::parser::ParserError::{
     MissingObjSeparator, NoObjName, ObjNameMismatch, ObjNameNotFound, ObjNameOverFlow,
     ObjNameSyntaxErr, OutOfInput, ScopeError, UnknownTransitionName,
 };
-
+use crate::parser::{ParserError, Scope, Separator, SkeletonState};
 
 impl Into<char> for Separator {
     /// Converts the separator from a u8 to a char equivalent
