@@ -54,7 +54,7 @@ pub mod pda_menu {
         MenuOptions::RegexToNFA,
     ];
 
-    pub(crate) fn list<'a>() -> &'a [MenuOptions] {
+    pub(crate) const fn list<'a>() -> &'a [MenuOptions] {
         &MENU_OPTIONS
     }
 
@@ -74,7 +74,7 @@ pub mod nfa_menu {
         MenuOptions::GenerateCorrespondingGrammar,
     ];
 
-    pub(crate) fn list<'a>() -> &'a [MenuOptions] {
+    pub(crate) const fn list<'a>() -> &'a [MenuOptions] {
         &MENU_OPTIONS
     }
 
@@ -104,7 +104,7 @@ pub mod dfa_menu {
         }
     }
 
-    pub(crate) fn list<'a>() -> &'a [MenuOptions] {
+    pub(crate) const fn list<'a>() -> &'a [MenuOptions] {
         &MENU_OPTIONS
     }
 }
