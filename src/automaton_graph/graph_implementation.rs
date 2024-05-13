@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::fmt;
 use std::rc::Rc;
 
@@ -42,6 +43,10 @@ impl Transition {
             pop,
             push,
         }
+    }
+
+    pub fn to(&self) -> &Rc<State> {
+        &self.to
     }
 }
 
@@ -101,6 +106,27 @@ impl Automaton {
     }
 
     pub fn state_list(&self) -> &Vec<Rc<State>> {
-        &self.accept_states
+        &self.all_states
+    }
+
+    pub fn get_state_map(automaton: &Automaton) -> HashMap<String, Vec<String>>
+    {
+        automaton.all_states
+            .iter()
+            .fold(
+                HashMap::new(),
+                |mut hash_map, state| {
+                    hash_map.insert(
+                        state.id.clone(),
+                        // Create a vec of all transition ids from state
+                        state.transition_edges
+                            .borrow()
+                            .iter()
+                            .map(|transition| {
+                                transition.to().id.clone()
+                            }).collect::<Vec<String>>(),
+                    );
+                    hash_map
+                })
     }
 }
