@@ -5,7 +5,7 @@ mod graph_implementation;
 
 /// Represents a symbol that is to be
 /// transitioned on
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum Symbol {
     CHAR(char),
     EPSILON, // ϵ
