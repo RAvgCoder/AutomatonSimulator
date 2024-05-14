@@ -87,6 +87,8 @@ impl DFA {
                 // dbg!(&equiv_states_list);
                 println!();
 
+                let last_equiv_class_num = EquivalenceClass::get_current_num();
+
                 // Create new subdivided classes
                 let mut new_split_classes = sub_divisions
                     .values()
@@ -100,24 +102,21 @@ impl DFA {
                     })
                     .collect::<Vec<EquivalenceClass>>();
 
+                // Remove the class to split
+                equiv_class_list.swap_remove(idx);
+
+                // Len of the equivalent class list after removal of the subdivided class
+                let class_len = equiv_class_list.len();
+
                 // Add subdivided classes
-
-                let len = new_split_classes.len();
-
-                // This needs to be after reading the result as new split class would become empty
                 equiv_class_list.append(&mut new_split_classes);
 
-                // unsafe { new_split_classes.set_len(len); }
-                // println!("++++{}", new_split_classes.len());
-
-                // Remove the class to split
-                let equiv_class_to_split = equiv_class_list.swap_remove(idx);
+                // Requires that the overloaded class be removed from the list before adding new ones subdivided classes
                 reduction_steps.add_split_classes(
-                    &new_split_classes,
-                    equiv_class_to_split,
+                    &equiv_class_list[class_len..],
                     &equiv_class_list,
+                    // [last_equiv_class_num as usize, sub_divisions.len()],
                 );
-
                 // Rebuild all equivalence classes
                 idx = 0;
             } else {
@@ -146,7 +145,9 @@ impl DFA {
         };
     }
 
+
     // Ex: [C0, C3, C4]
+    /// WARNING: `equiv_states_list` must contain a list of all equivalence classes
     fn find_class_for_transitions(
         state_map: &HashMap<String, Vec<String>>,
         equiv_states_list: &Vec<EquivalenceClass>,
@@ -241,6 +242,7 @@ impl<'a> DFAReductionSteps<'a> {
 
         DFAReductionSteps {
             table_steps: vec![Self::create_table_as_string(
+                None,
                 first_division,
                 state_transition_map,
                 padding_size,
@@ -260,14 +262,18 @@ impl<'a> DFAReductionSteps<'a> {
 
     pub fn add_split_classes(
         &mut self,
-        new_split_classes: &Vec<EquivalenceClass>,
-        class_to_split: EquivalenceClass,
-        equiv_class_list: &Vec<EquivalenceClass>,
+        new_split_classes: &[EquivalenceClass],
+        complete_equiv_class_list: &Vec<EquivalenceClass>,
+        // class_num_before_split_and_num_of_new_classes: [usize; 2],
     ) {
+        // + 1 because a class was just decomposed into other classes
+        // let current_class_number = class_num_before_split_and_num_of_new_classes[0] + 1;
+        // let num_of_new_classes = class_num_before_split_and_num_of_new_classes[1];
+
         self.reduction_was_successful = true;
         self.steps.push(format!(
             "Since all states in {} dont fall into the same equivalence class it is then split into [{}]",
-            class_to_split.class_name(),
+            self.class_name_dividing,
             new_split_classes.iter()
                 .fold(String::new(), |mut acc, classes| {
                     acc.push_str(classes.class_name());
@@ -277,14 +283,24 @@ impl<'a> DFAReductionSteps<'a> {
         ));
         self.steps.push(String::from("These include:"));
         self.steps.push(Self::create_table_as_string(
-            new_split_classes,
+            Some(new_split_classes),
+            complete_equiv_class_list,
             self.state_transition_map,
             self.padding_size,
         ));
 
-        // Add a new table to the transition
+        // Self::render_and_add_transition_and_classes_to_list(
+        //     full_equivalence_classes,
+        //     state_transition_map,
+        //     padding_size,
+        //     &mut table,
+        //     equivalence_class,
+        // );
+
+        // Add to new iteration to table
         self.table_steps.push(Self::create_table_as_string(
-            equiv_class_list,
+            None,
+            complete_equiv_class_list,
             self.state_transition_map,
             self.padding_size,
         ))
@@ -320,17 +336,18 @@ impl<'a> DFAReductionSteps<'a> {
         ));
     }
     fn create_table_as_string(
-        equivalence_classes: &Vec<EquivalenceClass>,
+        partial_equivalence_classes: Option<&[EquivalenceClass]>,
+        full_equivalence_classes: &Vec<EquivalenceClass>,
         state_transition_map: &HashMap<String, Vec<String>>,
         padding_size: usize,
     ) -> String {
         let mut table = String::new();
 
-        for equivalence_class in equivalence_classes {
+        for equivalence_class in partial_equivalence_classes.unwrap_or(full_equivalence_classes) {
             Self::render_class_name(&mut table, equivalence_class, padding_size);
 
             Self::render_and_add_transition_and_classes_to_list(
-                equivalence_classes,
+                full_equivalence_classes,
                 state_transition_map,
                 padding_size,
                 &mut table,
@@ -378,6 +395,8 @@ impl<'a> DFAReductionSteps<'a> {
     ///  |s1  | C1 C1
     ///
     ///  |s0  | C1 C1
+    ///
+    /// WARNING: `equivalence_classes` must contain a list of all equivalence classes
     fn render_and_add_transition_and_classes_to_list(
         equivalence_classes: &Vec<EquivalenceClass>,
         state_transition_map: &HashMap<String, Vec<String>>,
@@ -412,7 +431,7 @@ impl<'a> Display for DFAReductionSteps<'a> {
         }
 
         writeln!(f, "\n")?;
-        write!(f, "Connection names are [")?;
+        write!(f, "Class names are shown in order of connection names: [")?;
         for (idx, symbol) in self.transitions_name_map.iter().enumerate() {
             write!(f, "{}", symbol)?;
             if !(idx == self.transitions_name_map.len() - 1) {
@@ -471,6 +490,16 @@ mod equivalence_class {
 
         pub fn class_name(&self) -> &String {
             &self.class_name
+        }
+
+        pub fn get_current_num() -> u32 {
+            unsafe {
+                if CLASS_COUNTER == 0 {
+                    CLASS_COUNTER
+                } else {
+                    CLASS_COUNTER - 1
+                }
+            }
         }
 
         // Helper method to get the next available class number
