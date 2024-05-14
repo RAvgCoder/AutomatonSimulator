@@ -1,7 +1,6 @@
-mod dfa_reduction;
-
 use crate::automaton_graph::Automaton;
-use crate::parser::Parser;
+
+mod dfa_reduction;
 
 pub struct DFA {
     automaton_graph: Automaton,
