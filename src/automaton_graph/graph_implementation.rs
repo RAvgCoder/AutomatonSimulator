@@ -1,11 +1,21 @@
-use std::cell::RefCell;
+use std::cell::{Ref, RefCell};
 use std::collections::HashMap;
 use std::fmt;
+use std::fmt::{Display, Formatter};
 use std::rc::Rc;
 
 use crate::automaton_graph::{
     Automaton, AutomatonType, Position, State, Symbol, Tests, Transition,
 };
+
+impl Display for Symbol {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match &self {
+            Symbol::CHAR(c) => write!(f, "{}", c),
+            Symbol::EPSILON => write!(f, "ϵ"),
+        }
+    }
+}
 
 impl State {
     pub fn new(
@@ -28,6 +38,10 @@ impl State {
     pub fn add_transition(&self, transition: Transition) {
         self.transition_edges.borrow_mut().push(transition)
     }
+
+    pub fn get_transitions(&self) -> Ref<Vec<Transition>> {
+        self.transition_edges.borrow()
+    }
 }
 
 impl Transition {
@@ -48,6 +62,10 @@ impl Transition {
     pub fn to(&self) -> &Rc<State> {
         &self.to
     }
+
+    pub fn transition_on(&self) -> Symbol {
+        self.symbol
+    }
 }
 
 impl fmt::Debug for Transition {
@@ -55,33 +73,9 @@ impl fmt::Debug for Transition {
         // Format the output without recursively printing the connected node
         f.debug_struct("Transition")
             .field("to", &self.to.id)
-            .field(
-                "symbol",
-                match &self.symbol {
-                    Symbol::CHAR(c) => c,
-                    Symbol::EPSILON => &'ϵ',
-                },
-            )
-            .field(
-                "pop",
-                match &self.pop {
-                    Some(sym) => match sym {
-                        Symbol::CHAR(c) => c,
-                        Symbol::EPSILON => &"ϵ",
-                    },
-                    None => &"N/A",
-                },
-            )
-            .field(
-                "push",
-                match &self.push {
-                    Some(sym) => match sym {
-                        Symbol::CHAR(c) => c,
-                        Symbol::EPSILON => &"ϵ",
-                    },
-                    None => &"N/A",
-                },
-            )
+            .field("symbol", &self.symbol)
+            .field("pop", &self.pop)
+            .field("push", &self.push)
             .finish()
     }
 }
@@ -105,7 +99,7 @@ impl Automaton {
         }
     }
 
-    pub fn state_list(&self) -> &Vec<Rc<State>> {
+    pub fn all_states(&self) -> &Vec<Rc<State>> {
         &self.all_states
     }
 
