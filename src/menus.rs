@@ -99,7 +99,7 @@ pub mod dfa_menu {
         match menu_option {
             MenuOptions::ReduceDFA => dfa.reduce(),
             _ => panic!("{:?} not available for DFAs", menu_option),
-        }
+        };
     }
 
     pub(crate) const fn list<'a>() -> &'a [MenuOptions] {
