@@ -86,16 +86,23 @@ impl<'a> DFAReductionStepsRenderer<'a> {
     ) {
         // Alerts the renderer that reduction was successfully completed
         self.reduction_was_successful = true;
-        // Tell us what states it was broken into
+
+        // Tell us what states it was broken into Eg: C1, C2
+        let new_class_names =
+            new_split_classes
+                .iter()
+                .enumerate()
+                .fold(String::new(), |mut acc, (idx, classes)| {
+                    acc.push_str(classes.prefix_name());
+                    if idx < new_split_classes.len() - 1 {
+                        acc.push_str(", ");
+                    }
+                    acc
+                });
         self.steps.push(format!(
             "Since all states in {} dont fall into the same equivalence class it is then split into [{}]",
             self.class_name_dividing,
-            new_split_classes.iter()
-                .fold(String::new(), |mut acc, classes| {
-                    acc.push_str(classes.prefix_name());
-                    acc.push(',');
-                    acc
-                })
+            new_class_names
         ));
         // Show the new tables that are created
         self.steps.push(String::from("These include:"));
@@ -285,7 +292,7 @@ impl<'a> std::fmt::Display for DFAReductionStepsRenderer<'a> {
         for (idx, symbol) in self.transitions_alphabets.iter().enumerate() {
             write!(f, "{}", symbol)?;
             if !(idx == self.transitions_alphabets.len() - 1) {
-                write!(f, ",")?;
+                write!(f, ", ")?;
             }
         }
         write!(f, "]\n")?;
