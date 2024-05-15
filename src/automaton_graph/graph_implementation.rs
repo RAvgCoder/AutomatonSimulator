@@ -103,6 +103,7 @@ impl Automaton {
         &self.all_states
     }
 
+    /// Returns a hashmap which contains
     pub fn get_state_map(automaton: &Automaton) -> HashMap<String, Vec<String>> {
         automaton
             .all_states
