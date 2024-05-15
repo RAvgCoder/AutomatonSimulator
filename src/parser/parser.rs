@@ -18,7 +18,7 @@ use crate::parser::{Parser, ParserError, Scope, Separator, SkeletonState};
 
 impl Parser {
     /// Parses the file that describes the automaton whose skeleton
-    /// is described as or is provided by the website https://automatonsimulator.com/
+    /// is described as or is provided by the website [automaton simulator site](https://automatonsimulator.com/)
     ///
     ///     {
     ///
@@ -383,12 +383,14 @@ impl Parser {
             );
         }
 
-        println!();
-        dbg!(&accepting_strings);
-        dbg!(&rejecting_strings);
-        dbg!(&state_list);
-        dbg!(skeleton_parser.cursor);
-        dbg!(state_list.len());
+        if false {
+            println!();
+            dbg!(&accepting_strings);
+            dbg!(&rejecting_strings);
+            dbg!(&state_list);
+            dbg!(skeleton_parser.cursor);
+            dbg!(state_list.len());
+        }
 
         // Build the final automaton
         Automaton::new(
