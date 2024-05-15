@@ -12,6 +12,13 @@ Question:
 |      Yes       |    s6      |   s0      |   s1   |       
 |----------------|------------|-----------|--------|     
 
+|--------------------------------------------------------------------
+|Raw Json From https://automatonsimulator.com/
+|--------------------------------------------------------------------
+{"type":"DFA","dfa":{"transitions":{"start":{"0":"s4","1":"s5"},"s0":{"0":"s0","1":"s1"},"s1":{"0":"s1","1":"s0"},"s2":{"0":"s0","1":"s1"},"s3":{"0":"s5","1":"s4"},"s4":{"0":"start","1":"s3"},"s5":{"0":"s3","1":"s3"},"s6":{"0":"s0","1":"s1"}},"startState":"start","acceptStates":["s2","s4","s5","s6"]},"states":{"start":{},"s4":{"isAccept":true,"top":88.0000047529297,"left":143.00002001171876,"displayId":"s4"},"s5":{"isAccept":true,"top":200.0000047529297,"left":430.0000200117188,"displayId":"s5"},"s0":{"top":472.00002001171873,"left":357.0000200117188,"displayId":"s0"},"s1":{"top":295.00002001171873,"left":263.0000200117188,"displayId":"s1"},"s2":{"isAccept":true,"top":460.66667650585936,"left":113.66667650585939,"displayId":"s2"},"s3":{"top":71.33333300000001,"left":375.33333300000004,"displayId":"s3"},"s6":{"isAccept":true,"top":383.00002001171873,"left":565.0000200117188,"displayId":"s6"}},"transitions":[{"stateA":"start","label":"0","stateB":"s4"},{"stateA":"start","label":"1","stateB":"s5"},{"stateA":"s0","label":"0","stateB":"s0"},{"stateA":"s0","label":"1","stateB":"s1"},{"stateA":"s1","label":"0","stateB":"s1"},{"stateA":"s1","label":"1","stateB":"s0"},{"stateA":"s2","label":"0","stateB":"s0"},{"stateA":"s2","label":"1","stateB":"s1"},{"stateA":"s3","label":"0","stateB":"s5"},{"stateA":"s3","label":"1","stateB":"s4"},{"stateA":"s4","label":"0","stateB":"start"},{"stateA":"s4","label":"1","stateB":"s3"},{"stateA":"s5","label":"0","stateB":"s3"},{"stateA":"s5","label":"1","stateB":"s3"},{"stateA":"s6","label":"0","stateB":"s0"},{"stateA":"s6","label":"1","stateB":"s1"}],"bulkTests":{"accept":"","reject":""}}
+|--------------------------------------------------------------------
+
+
 ----------------------------------
 Solution Provided by the solver 
 ----------------------------------
