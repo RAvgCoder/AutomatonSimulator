@@ -1,0 +1,157 @@
+Question:
+|----------------|------------|-----------|--------|      
+| IsAcceptState  |    State   |     0     |   1    |     
+|----------------|------------|-----------|--------|     
+|      No        |    start   |   s4      |   s5   |     
+|      No        |    s0      |   s0      |   s1   |     
+|      No        |    s1      |   s1      |   s0   |     
+|      Yes       |    s2      |   s0      |   s1   |     
+|      No        |    s3      |   s5      |   s4   |     
+|      Yes       |    s4      |   start   |   s3   |     
+|      Yes       |    s5      |   s3      |   s3   |     
+|      Yes       |    s6      |   s0      |   s1   |       
+|----------------|------------|-----------|--------|     
+
+----------------------------------
+Solution Provided by the solver 
+----------------------------------
+Steps for reducing the dfa are as follows:
+Step 1:
+We now pick and try to subdivide the equivalence classes C0
+s6     |   C1 C1
+s2     |   C1 C1
+s5     |   C1 C1
+s4     |   C1 C1
+Could not split C0 as all state transitions fall into the same equivalent classes
+
+Step 2:
+We now pick and try to subdivide the equivalence classes C1
+s0     |   C1 C1
+s3     |   C0 C0
+s1     |   C1 C1
+start  |   C0 C0
+Since all states in C1 dont fall into the same equivalence class it is then split into [C2,C3,]
+These include:
+|--------------
+|     C2
+|--------------
+|s3     | C0 C0
+|start  | C0 C0
+|--------------
+|     C3
+|--------------
+|s0     | C3 C3
+|s1     | C3 C3
+
+Since splitting C1 was successful we have to re-evaluate all classes again to see if any have changed
+
+Step 3:
+We now pick and try to subdivide the equivalence classes C0
+s6     |   C3 C3
+s2     |   C3 C3
+s5     |   C2 C2
+s4     |   C2 C2
+Since all states in C0 dont fall into the same equivalence class it is then split into [C4,C5,]
+These include:
+|--------------
+|     C4
+|--------------
+|s5     | C2 C2
+|s4     | C2 C2
+|--------------
+|     C5
+|--------------
+|s6     | C3 C3
+|s2     | C3 C3
+
+Since splitting C0 was successful we have to re-evaluate all classes again to see if any have changed
+
+Step 4:
+We now pick and try to subdivide the equivalence classes C3
+s0     |   C3 C3
+s1     |   C3 C3
+Could not split C3 as all state transitions fall into the same equivalent classes
+
+Step 5:
+We now pick and try to subdivide the equivalence classes C2
+s3     |   C4 C4
+start  |   C4 C4
+Could not split C2 as all state transitions fall into the same equivalent classes
+
+Step 6:
+We now pick and try to subdivide the equivalence classes C4
+s5     |   C2 C2
+s4     |   C2 C2
+Could not split C4 as all state transitions fall into the same equivalent classes
+
+Step 7:
+We now pick and try to subdivide the equivalence classes C5
+s6     |   C3 C3
+s2     |   C3 C3
+Could not split C5 as all state transitions fall into the same equivalent classes
+
+
+
+Class names are shown in order of connection names: [0,1]
+Tables generated from reduction are
+----------------------------
+Iteration count 1:
+|--------------
+|     C0
+|--------------
+|s6     | C1 C1
+|s2     | C1 C1
+|s5     | C1 C1
+|s4     | C1 C1
+|--------------
+|     C1
+|--------------
+|s0     | C1 C1
+|s3     | C0 C0
+|s1     | C1 C1
+|start  | C0 C0
+
+----------------------------
+Iteration count 2:
+|--------------
+|     C0
+|--------------
+|s6     | C3 C3
+|s2     | C3 C3
+|s5     | C2 C2
+|s4     | C2 C2
+|--------------
+|     C2
+|--------------
+|s3     | C0 C0
+|start  | C0 C0
+|--------------
+|     C3
+|--------------
+|s0     | C3 C3
+|s1     | C3 C3
+
+----------------------------
+Iteration count 3:
+|--------------
+|     C3
+|--------------
+|s0     | C3 C3
+|s1     | C3 C3
+|--------------
+|     C2
+|--------------
+|s3     | C4 C4
+|start  | C4 C4
+|--------------
+|     C4
+|--------------
+|s5     | C2 C2
+|s4     | C2 C2
+|--------------
+|     C5
+|--------------
+|s6     | C3 C3
+|s2     | C3 C3
+
+----------------------------
