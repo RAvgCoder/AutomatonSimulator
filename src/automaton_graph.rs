@@ -1,11 +1,14 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-mod graph_implementation;
+mod automaton;
+mod state;
+mod symbol;
+mod transition;
 
 /// Represents a symbol that is to be
 /// transitioned on
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
 pub enum Symbol {
     CHAR(char),
     EPSILON, // ϵ
@@ -35,7 +38,7 @@ pub struct Transition {
 }
 
 /// Position on the screen to be rendered
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Default)]
 pub struct Position {
     pub x: f64,
     pub y: f64,
@@ -55,6 +58,7 @@ pub struct State {
 
 /// Represents the graph of the automaton to
 /// be simulated
+#[derive(Debug)]
 pub struct Automaton {
     pub automaton_type: AutomatonType,
     start_state: Rc<State>,
@@ -66,6 +70,7 @@ pub struct Automaton {
 
 /// Represents a test suite for strings to be accepted
 /// or rejected by the automaton
+#[derive(Default, Debug)]
 pub struct Tests {
     pub accepting_strings: Vec<String>,
     pub rejecting_strings: Vec<String>,
