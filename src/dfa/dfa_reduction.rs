@@ -1,6 +1,10 @@
+use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
+use std::rc::Rc;
 
-use crate::automaton_graph::Automaton;
+use crate::automaton_graph::{
+    Automaton, AutomatonType, Position, State, Symbol, Tests, Transition,
+};
 use crate::dfa::dfa_reduction::dfa_step_renderer::DFAReductionStepsRenderer;
 use crate::dfa::dfa_reduction::equivalence_class::EquivalenceClass;
 use crate::dfa::{ReductionSteps, DFA};
@@ -112,14 +116,18 @@ impl DFA {
             // Add remarks on the state of the subdivisions
             step_renderer.split_conclusion();
         }
-
-        // Print out the steps taken and the tables generated
-        println!("{}", step_renderer);
-
-        // TODO Create and return an automaton representing the reduced dfa
+        step_renderer.finish(&equiv_class_list);
+        
         Some(ReductionSteps {
+            classes_created: equiv_class_list.len() as u32,
             table: step_renderer.move_table_steps(),
             steps: step_renderer.move_steps(),
+            reduced_dfa: Self::class_to_automaton(
+                equiv_class_list,
+                step_renderer.transitions_alphabets(),
+                self.automaton_graph.all_states(),
+                &state_map,
+            ),
         })
     }
 
@@ -146,7 +154,7 @@ impl DFA {
 
     /// Returns a string of classes corresponding to the transitions on a `class_state_id`
     ///
-    /// Ex: [C0, C3, C4]
+    /// Ex: "C0 C3 C4"
     ///
     /// # Arguments
     ///
@@ -156,7 +164,7 @@ impl DFA {
     fn find_class_for_transitions(
         state_map: &HashMap<String, Vec<String>>,
         complete_equiv_states_list: &Vec<EquivalenceClass>,
-        class_state_id: &String,
+        class_state_id: &str,
     ) -> String {
         state_map
             .get(class_state_id)
@@ -165,9 +173,14 @@ impl DFA {
                 class_state_id
             ))
             .iter()
-            .map(|state_name| Self::find_equiv_class_name(state_name, complete_equiv_states_list))
-            .collect::<Vec<String>>()
-            .join(" ")
+            .fold(String::new(), |mut acc, state_name| {
+                acc.push_str(&EquivalenceClass::find_equiv_class_name(
+                    state_name,
+                    complete_equiv_states_list,
+                ));
+                acc.push(' ');
+                acc
+            })
     }
 
     /// Returns a list of final and non_final equivalence_classes
@@ -201,24 +214,86 @@ impl DFA {
         equiv_classes
     }
 
-    /// Given a state name it finds the corresponding equivalence class it corresponds to in the list provided
-    ///
-    /// # Arguments
-    ///
-    /// * `state_name`: The state you want find the class name for
-    /// * `equiv_states_list`: List of equivalent states you want to search though
-    fn find_equiv_class_name(
-        state_name: &String,
-        equiv_states_list: &Vec<EquivalenceClass>,
-    ) -> String {
-        equiv_states_list
+    fn class_to_automaton(
+        equivalence_classes: Vec<EquivalenceClass>,
+        transitions_alphabets: &Vec<Symbol>,
+        all_states: &Vec<Rc<State>>,
+        state_map: &HashMap<String, Vec<String>>,
+    ) -> Automaton {
+        // Create list of states without transitions
+        let new_states = equivalence_classes
             .iter()
-            .find(|&equiv_class| equiv_class.state_ids().contains(state_name))
-            .expect(&format!(
-                "Could not find {} in any of the equivalence classes",
-                state_name
-            ))
-            .prefix_name()
-            .clone()
+            .map(|eq| {
+                Rc::new(State::new(
+                    eq.name(),
+                    None,
+                    Position::default(),
+                    // Check if this class contains a final state
+                    eq.state_ids()
+                        .iter()
+                        .find(|ids| {
+                            State::find_state_by_id(all_states, ids)
+                                .expect("Could not find id in the list of states")
+                                .is_accept_state
+                        })
+                        .map_or(false, |_| true),
+                    RefCell::new(vec![]),
+                ))
+            })
+            .collect::<Vec<Rc<State>>>();
+
+        let err_message = "equivalent_class id not found even after creating new states from equivalent_class list";
+
+        // Add transitions for each state
+        for eq in &equivalence_classes {
+            let curr_state = State::find_state_by_id(&new_states, &eq.name()).expect(err_message);
+
+            // Find any state in the equivalence list
+            let state = eq
+                .state_ids()
+                .iter()
+                .next()
+                .expect("An equivalent class should never have empty state ids");
+
+            // Get that states connections and add its new transitions to the curr_state
+            state_map
+                .get(state)
+                .expect("Could not find state in map")
+                .iter()
+                .map(|c| {
+                    let class_name =
+                        EquivalenceClass::find_equiv_class_name(c, &equivalence_classes);
+                    State::find_state_by_id(&new_states, &class_name).expect(err_message)
+                })
+                .zip(transitions_alphabets)
+                .for_each(|(state, symbol): (Rc<State>, &Symbol)| {
+                    curr_state.add_transition(Transition::dfa(state, *symbol))
+                })
+        }
+
+        let s_state = State::find_state_by_id(
+            &new_states,
+            &EquivalenceClass::find_equiv_class_name("start", &equivalence_classes),
+        )
+        .expect("Cannot find start state when recreating the automaton");
+
+        let accepting_states = new_states
+            .iter()
+            .filter_map(|s| {
+                if s.is_accept_state {
+                    Some(s.clone())
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<Rc<State>>>();
+
+        Automaton::new(
+            AutomatonType::DFA,
+            s_state,
+            accepting_states,
+            new_states,
+            Tests::default(),
+        )
     }
 }
