@@ -28,11 +28,16 @@ impl EquivalenceClass {
             "Cannot create an equivalence class with no states"
         );
 
-        let class_name = Self::get_name(Self::get_next_class_number());
+        let class_name = Self::create_name(Self::get_next_class_number());
         EquivalenceClass {
             class_name,
             class_state_ids,
         }
+    }
+
+    /// Returns the name of this equivalence class
+    pub fn name(&self) -> String {
+        self.class_name.clone()
     }
 
     /// Returns a name given a class number
@@ -47,7 +52,7 @@ impl EquivalenceClass {
     /// let name = EquivalenceClass::get_name(1);
     /// println!("{}", name); // "C1"
     /// ```
-    pub fn get_name(class_number: u32) -> String {
+    pub fn create_name(class_number: u32) -> String {
         format!("{}{}", Self::PREFIX_NAME, class_number)
     }
 
@@ -73,5 +78,26 @@ impl EquivalenceClass {
             CLASS_COUNTER += 1;
             class_number
         }
+    }
+
+    /// Given a state name it finds the corresponding equivalence class it corresponds to in the list provided
+    ///
+    /// # Arguments
+    ///
+    /// * `state_name`: The state you want find the class name for
+    /// * `equiv_states_list`: List of equivalent states you want to search though
+    pub fn find_equiv_class_name(
+        state_name: &str,
+        equiv_states_list: &Vec<EquivalenceClass>,
+    ) -> String {
+        equiv_states_list
+            .iter()
+            .find(|&equiv_class| equiv_class.state_ids().contains(state_name))
+            .expect(&format!(
+                "Could not find {} in any of the equivalence classes",
+                state_name
+            ))
+            .prefix_name()
+            .clone()
     }
 }
