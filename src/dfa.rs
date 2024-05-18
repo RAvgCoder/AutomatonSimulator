@@ -1,23 +1,12 @@
+use std::fmt::{Display, Formatter};
+
 use crate::automaton_graph::Automaton;
+use crate::dfa::dfa_reduction::{Steps, Table};
 
 mod dfa_reduction;
 
 pub struct DFA {
     automaton_graph: Automaton,
-}
-
-#[derive(Debug)]
-pub struct ReductionSteps {
-    classes_created: u32,
-    pub steps: Vec<String>,
-    pub table: Vec<String>,
-    pub reduced_dfa: Automaton,
-}
-
-impl ReductionSteps {
-    fn classes_created(&self) -> u32 {
-        self.classes_created
-    }
 }
 
 impl DFA {
@@ -30,5 +19,29 @@ impl DFA {
         DFA {
             automaton_graph: automaton,
         }
+    }
+}
+
+#[derive(Debug)]
+pub struct ReductionSteps {
+    num_of_classes_created: u32,
+    pub steps: Steps,
+    pub table: Table,
+    pub reduced_dfa: Automaton,
+}
+
+impl ReductionSteps {
+    fn num_of_classes_created(&self) -> u32 {
+        self.num_of_classes_created
+    }
+}
+
+impl Display for ReductionSteps {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "Number of equivalence classes created: {}", self.num_of_classes_created)?;
+        writeln!(f, "{}", self.steps)?;
+        writeln!(f, "{}", self.table)?;
+        writeln!(f, "{:#?}", self.reduced_dfa)?;
+        Ok(())
     }
 }
