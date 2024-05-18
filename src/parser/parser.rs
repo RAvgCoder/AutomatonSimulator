@@ -171,7 +171,7 @@ impl Parser {
                         // Create the nodes and add them to a node list
                         state_list.push(Rc::new(State::new(
                             state_name.clone(),
-                            alt_name.unwrap_or(state_name),
+                            alt_name,
                             position,
                             is_accept_state,
                             RefCell::new(vec![]),
@@ -209,7 +209,7 @@ impl Parser {
                             let state_a_name = transition_parser.try_consume_name().unwrap();
 
                             // Find the state specified in the transition from the list of states
-                            state_a = Self::find_state_by_id(&state_list, state_a_name.as_str())
+                            state_a = State::find_state_by_id(&state_list, state_a_name.as_str())
                                 .expect(&format!(
                                     "Cannot find state_a referenced in transition {}",
                                     state_a_name.as_str()
@@ -269,7 +269,7 @@ impl Parser {
                             let state_b_name = transition_parser.try_consume_name().unwrap();
 
                             // Find the state specified in the transition from the list of states
-                            state_b = Self::find_state_by_id(&state_list, state_b_name.as_str())
+                            state_b = State::find_state_by_id(&state_list, state_b_name.as_str())
                                 .expect(&format!(
                                     "Cannot find state_b referenced in transition {}. On iteration count {}",
                                     state_b_name.as_str(), transition_iter_count
@@ -397,8 +397,7 @@ impl Parser {
             // This should never fail as long as the skeleton_sate is correctly implemented
             // and the match on sate_type is also correct
             automaton_type.expect("Automaton type was never set"),
-            Self::find_state_by_id(&state_list, "start").expect("No Start state found"),
-            false,
+            State::find_state_by_id(&state_list, "start").expect("No Start state found"),
             state_list // Create a list of all accepting states
                 .iter()
                 .filter(|node| node.is_accept_state)
@@ -428,11 +427,6 @@ impl Parser {
     /// Checks if the parser can still be used
     fn can_consume(&self) -> bool {
         self.program_iter.len() != 0
-    }
-
-    /// Define a function to search for a node by its ID
-    fn find_state_by_id(states: &Vec<Rc<State>>, target_id: &str) -> Option<Rc<State>> {
-        states.iter().find(|node| node.id == target_id).cloned()
     }
 
     /// Extracts object name from the parser
