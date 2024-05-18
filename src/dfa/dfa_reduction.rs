@@ -9,6 +9,9 @@ use crate::dfa::dfa_reduction::dfa_step_renderer::DFAReductionStepsRenderer;
 use crate::dfa::dfa_reduction::equivalence_class::EquivalenceClass;
 use crate::dfa::{ReductionSteps, DFA};
 
+pub use dfa_step_renderer::steps::Steps;
+pub use dfa_step_renderer::table::Table;
+
 mod dfa_step_renderer;
 mod equivalence_class;
 
@@ -117,9 +120,9 @@ impl DFA {
             step_renderer.split_conclusion();
         }
         step_renderer.finish(&equiv_class_list);
-        
+
         Some(ReductionSteps {
-            classes_created: equiv_class_list.len() as u32,
+            num_of_classes_created: equiv_class_list.len() as u32,
             table: step_renderer.move_table_steps(),
             steps: step_renderer.move_steps(),
             reduced_dfa: Self::class_to_automaton(
