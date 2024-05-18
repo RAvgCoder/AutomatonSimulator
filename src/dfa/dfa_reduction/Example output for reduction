@@ -15,150 +15,339 @@ Question:
 |--------------------------------------------------------------------
 |Raw Json From https://automatonsimulator.com/
 |--------------------------------------------------------------------
-{"type":"DFA","dfa":{"transitions":{"start":{"0":"s4","1":"s5"},"s0":{"0":"s0","1":"s1"},"s1":{"0":"s1","1":"s0"},"s2":{"0":"s0","1":"s1"},"s3":{"0":"s5","1":"s4"},"s4":{"0":"start","1":"s3"},"s5":{"0":"s3","1":"s3"},"s6":{"0":"s0","1":"s1"}},"startState":"start","acceptStates":["s2","s4","s5","s6"]},"states":{"start":{},"s4":{"isAccept":true,"top":88.0000047529297,"left":143.00002001171876,"displayId":"s4"},"s5":{"isAccept":true,"top":200.0000047529297,"left":430.0000200117188,"displayId":"s5"},"s0":{"top":472.00002001171873,"left":357.0000200117188,"displayId":"s0"},"s1":{"top":295.00002001171873,"left":263.0000200117188,"displayId":"s1"},"s2":{"isAccept":true,"top":460.66667650585936,"left":113.66667650585939,"displayId":"s2"},"s3":{"top":71.33333300000001,"left":375.33333300000004,"displayId":"s3"},"s6":{"isAccept":true,"top":383.00002001171873,"left":565.0000200117188,"displayId":"s6"}},"transitions":[{"stateA":"start","label":"0","stateB":"s4"},{"stateA":"start","label":"1","stateB":"s5"},{"stateA":"s0","label":"0","stateB":"s0"},{"stateA":"s0","label":"1","stateB":"s1"},{"stateA":"s1","label":"0","stateB":"s1"},{"stateA":"s1","label":"1","stateB":"s0"},{"stateA":"s2","label":"0","stateB":"s0"},{"stateA":"s2","label":"1","stateB":"s1"},{"stateA":"s3","label":"0","stateB":"s5"},{"stateA":"s3","label":"1","stateB":"s4"},{"stateA":"s4","label":"0","stateB":"start"},{"stateA":"s4","label":"1","stateB":"s3"},{"stateA":"s5","label":"0","stateB":"s3"},{"stateA":"s5","label":"1","stateB":"s3"},{"stateA":"s6","label":"0","stateB":"s0"},{"stateA":"s6","label":"1","stateB":"s1"}],"bulkTests":{"accept":"","reject":""}}
+{"type":"DFA","dfa":{"transitions":{"start":{"b":"start","a":"s0"},"s0":{"b":"s2","a":"s1"},"s1":{"a":"s3","b":"start"},"s2":{"a":"s4","b":"s5"},"s3":{"a":"s10","b":"start"},"s4":{"a":"s6","b":"start"},"s5":{"a":"s6","b":"start"},"s6":{"a":"s1","b":"s7"},"s7":{"a":"s8","b":"s4"},"s8":{"a":"s9","b":"s7"},"s9":{"a":"s11","b":"s7"},"s10":{"a":"s10","b":"start"},"s11":{"a":"s3","b":"start"}},"startState":"start","acceptStates":["s1","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11"]},"states":{"start":{},"s0":{"top":480.6667070234375,"left":84.66667650585939,"displayId":"s0"},"s2":{"isAccept":true,"top":490.00002001171873,"left":318.0000200117188,"displayId":"s2"},"s1":{"isAccept":true,"top":133.0000047529297,"left":179.00002001171876,"displayId":"s1"},"s3":{"isAccept":true,"top":39.333333,"left":150.333333,"displayId":"s3"},"s4":{"isAccept":true,"top":376.00002001171873,"left":296.0000200117188,"displayId":"s4"},"s5":{"isAccept":true,"top":336.66667650585936,"left":599.6667070234375,"displayId":"s5"},"s10":{"isAccept":true,"top":240.66667650585939,"left":388.66670702343754,"displayId":"s10"},"s6":{"isAccept":true,"top":203.66667650585939,"left":700.6667070234375,"displayId":"s6"},"s7":{"isAccept":true,"top":452.66667650585936,"left":669.6667070234375,"displayId":"s7"},"s8":{"isAccept":true,"top":468.00002001171873,"left":1075.000081046875,"displayId":"s8"},"s9":{"isAccept":true,"top":150.0000047529297,"left":954.000081046875,"displayId":"s9"},"s11":{"isAccept":true,"top":103.66667650585939,"left":575.6667070234375,"displayId":"s11"}},"transitions":[{"stateA":"start","label":"b","stateB":"start"},{"stateA":"start","label":"a","stateB":"s0"},{"stateA":"s0","label":"b","stateB":"s2"},{"stateA":"s0","label":"a","stateB":"s1"},{"stateA":"s1","label":"a","stateB":"s3"},{"stateA":"s1","label":"b","stateB":"start"},{"stateA":"s2","label":"a","stateB":"s4"},{"stateA":"s2","label":"b","stateB":"s5"},{"stateA":"s3","label":"a","stateB":"s10"},{"stateA":"s3","label":"b","stateB":"start"},{"stateA":"s4","label":"a","stateB":"s6"},{"stateA":"s4","label":"b","stateB":"start"},{"stateA":"s5","label":"a","stateB":"s6"},{"stateA":"s5","label":"b","stateB":"start"},{"stateA":"s6","label":"a","stateB":"s1"},{"stateA":"s6","label":"b","stateB":"s7"},{"stateA":"s7","label":"a","stateB":"s8"},{"stateA":"s7","label":"b","stateB":"s4"},{"stateA":"s8","label":"a","stateB":"s9"},{"stateA":"s8","label":"b","stateB":"s7"},{"stateA":"s9","label":"a","stateB":"s11"},{"stateA":"s9","label":"b","stateB":"s7"},{"stateA":"s10","label":"a","stateB":"s10"},{"stateA":"s10","label":"b","stateB":"start"},{"stateA":"s11","label":"a","stateB":"s3"},{"stateA":"s11","label":"b","stateB":"start"}],"bulkTests":{"accept":"","reject":""}}
 |--------------------------------------------------------------------
 
 
 ----------------------------------
-Solution Provided by the solver 
+Solution Provided by the solver
 ----------------------------------
-Steps for reducing the dfa are as follows:
+Divide the table into final, 'C0' and non-final 'C1' states
+|--------------
+|     C0
+|--------------
+|s5     | C0 C1
+|s8     | C0 C0
+|s2     | C0 C0
+|s10    | C0 C1
+|s7     | C0 C0
+|s3     | C0 C1
+|s9     | C0 C0
+|s4     | C0 C1
+|s1     | C0 C1
+|s6     | C0 C0
+|s11    | C0 C1
+|--------------
+|     C1
+|--------------
+|start  | C1 C1
+|s0     | C0 C0
+
 Step 1:
 We now pick and try to subdivide the equivalence classes C0
-s6     |   C1 C1
-s2     |   C1 C1
-s5     |   C1 C1
-s4     |   C1 C1
-Could not split C0 as all state transitions fall into the same equivalent classes
-
-Step 2:
-We now pick and try to subdivide the equivalence classes C1
-s0     |   C1 C1
-s3     |   C0 C0
-s1     |   C1 C1
-start  |   C0 C0
-Since all states in C1 dont fall into the same equivalence class it is then split into [C2,C3,]
+s5     |   C0 C1
+s8     |   C0 C0
+s2     |   C0 C0
+s10    |   C0 C1
+s7     |   C0 C0
+s3     |   C0 C1
+s9     |   C0 C0
+s4     |   C0 C1
+s1     |   C0 C1
+s6     |   C0 C0
+s11    |   C0 C1
+Since all states in C0 dont fall into the same equivalence class it is then split into [C2, C3]
 These include:
 |--------------
 |     C2
 |--------------
-|s3     | C0 C0
-|start  | C0 C0
+|s2     | C3 C3
+|s8     | C2 C2
+|s7     | C2 C3
+|s9     | C3 C2
+|s6     | C3 C2
 |--------------
 |     C3
 |--------------
-|s0     | C3 C3
-|s1     | C3 C3
+|s10    | C3 C1
+|s3     | C3 C1
+|s5     | C2 C1
+|s4     | C2 C1
+|s1     | C3 C1
+|s11    | C3 C1
 
-Since splitting C1 was successful we have to re-evaluate all classes again to see if any have changed
+Since splitting C0 was successful we have to re-evaluate all classes again to see if any have changed
 
-Step 3:
-We now pick and try to subdivide the equivalence classes C0
-s6     |   C3 C3
-s2     |   C3 C3
-s5     |   C2 C2
-s4     |   C2 C2
-Since all states in C0 dont fall into the same equivalence class it is then split into [C4,C5,]
+Step 2:
+We now pick and try to subdivide the equivalence classes C1
+start  |   C1 C1
+s0     |   C3 C2
+Since all states in C1 dont fall into the same equivalence class it is then split into [C4, C5]
 These include:
 |--------------
 |     C4
 |--------------
-|s5     | C2 C2
-|s4     | C2 C2
+|start  | C5 C4
 |--------------
 |     C5
 |--------------
-|s6     | C3 C3
-|s2     | C3 C3
+|s0     | C3 C2
 
-Since splitting C0 was successful we have to re-evaluate all classes again to see if any have changed
+Since splitting C1 was successful we have to re-evaluate all classes again to see if any have changed
+
+Step 3:
+We now pick and try to subdivide the equivalence classes C3
+s10    |   C3 C4
+s3     |   C3 C4
+s5     |   C2 C4
+s4     |   C2 C4
+s1     |   C3 C4
+s11    |   C3 C4
+Since all states in C3 dont fall into the same equivalence class it is then split into [C6, C7]
+These include:
+|--------------
+|     C6
+|--------------
+|s11    | C6 C4
+|s3     | C6 C4
+|s1     | C6 C4
+|s10    | C6 C4
+|--------------
+|     C7
+|--------------
+|s5     | C2 C4
+|s4     | C2 C4
+
+Since splitting C3 was successful we have to re-evaluate all classes again to see if any have changed
 
 Step 4:
-We now pick and try to subdivide the equivalence classes C3
-s0     |   C3 C3
-s1     |   C3 C3
-Could not split C3 as all state transitions fall into the same equivalent classes
+We now pick and try to subdivide the equivalence classes C5
+s0     |   C6 C2
+Could not split C5 as all state transitions fall into the same equivalent classes
 
 Step 5:
 We now pick and try to subdivide the equivalence classes C2
-s3     |   C4 C4
-start  |   C4 C4
-Could not split C2 as all state transitions fall into the same equivalent classes
+s2     |   C7 C7
+s8     |   C2 C2
+s7     |   C2 C7
+s9     |   C6 C2
+s6     |   C6 C2
+Since all states in C2 dont fall into the same equivalence class it is then split into [C8, C9, C10, C11]
+These include:
+|--------------
+|     C8
+|--------------
+|s2     | C7 C7
+|--------------
+|     C9
+|--------------
+|s8     | C11 C10
+|--------------
+|    C10
+|--------------
+|s7     | C9 C7
+|--------------
+|    C11
+|--------------
+|s6     | C6 C10
+|s9     | C6 C10
+
+Since splitting C2 was successful we have to re-evaluate all classes again to see if any have changed
 
 Step 6:
-We now pick and try to subdivide the equivalence classes C4
-s5     |   C2 C2
-s4     |   C2 C2
-Could not split C4 as all state transitions fall into the same equivalent classes
-
-Step 7:
 We now pick and try to subdivide the equivalence classes C5
-s6     |   C3 C3
-s2     |   C3 C3
+s0     |   C6 C8
 Could not split C5 as all state transitions fall into the same equivalent classes
 
+Step 7:
+We now pick and try to subdivide the equivalence classes C7
+s5     |   C11 C4
+s4     |   C11 C4
+Could not split C7 as all state transitions fall into the same equivalent classes
+
+Step 8:
+We now pick and try to subdivide the equivalence classes C4
+start  |   C5 C4
+Could not split C4 as all state transitions fall into the same equivalent classes
+
+Step 9:
+We now pick and try to subdivide the equivalence classes C6
+s11    |   C6 C4
+s3     |   C6 C4
+s1     |   C6 C4
+s10    |   C6 C4
+Could not split C6 as all state transitions fall into the same equivalent classes
+
+Step 10:
+We now pick and try to subdivide the equivalence classes C8
+s2     |   C7 C7
+Could not split C8 as all state transitions fall into the same equivalent classes
+
+Step 11:
+We now pick and try to subdivide the equivalence classes C9
+s8     |   C11 C10
+Could not split C9 as all state transitions fall into the same equivalent classes
+
+Step 12:
+We now pick and try to subdivide the equivalence classes C10
+s7     |   C9 C7
+Could not split C10 as all state transitions fall into the same equivalent classes
+
+Step 13:
+We now pick and try to subdivide the equivalence classes C11
+s6     |   C6 C10
+s9     |   C6 C10
+Could not split C11 as all state transitions fall into the same equivalent classes
+
+All states are now reduced into their equivalent classes giving us a total of 8 equivalent classes
 
 
-Class names are shown in order of connection names: [0,1]
+Class names are shown in order of connection names: [a, b]
 Tables generated from reduction are
 ----------------------------
 Iteration count 1:
 |--------------
 |     C0
 |--------------
-|s6     | C1 C1
-|s2     | C1 C1
-|s5     | C1 C1
-|s4     | C1 C1
+|s5     | C0 C1
+|s8     | C0 C0
+|s2     | C0 C0
+|s10    | C0 C1
+|s7     | C0 C0
+|s3     | C0 C1
+|s9     | C0 C0
+|s4     | C0 C1
+|s1     | C0 C1
+|s6     | C0 C0
+|s11    | C0 C1
 |--------------
 |     C1
 |--------------
-|s0     | C1 C1
-|s3     | C0 C0
-|s1     | C1 C1
-|start  | C0 C0
+|start  | C1 C1
+|s0     | C0 C0
 
 ----------------------------
 Iteration count 2:
 |--------------
-|     C0
+|     C1
 |--------------
-|s6     | C3 C3
-|s2     | C3 C3
-|s5     | C2 C2
-|s4     | C2 C2
+|start  | C1 C1
+|s0     | C3 C2
 |--------------
 |     C2
 |--------------
-|s3     | C0 C0
-|start  | C0 C0
+|s2     | C3 C3
+|s8     | C2 C2
+|s7     | C2 C3
+|s9     | C3 C2
+|s6     | C3 C2
 |--------------
 |     C3
 |--------------
-|s0     | C3 C3
-|s1     | C3 C3
+|s10    | C3 C1
+|s3     | C3 C1
+|s5     | C2 C1
+|s4     | C2 C1
+|s1     | C3 C1
+|s11    | C3 C1
 
 ----------------------------
 Iteration count 3:
 |--------------
 |     C3
 |--------------
-|s0     | C3 C3
-|s1     | C3 C3
+|s10    | C3 C4
+|s3     | C3 C4
+|s5     | C2 C4
+|s4     | C2 C4
+|s1     | C3 C4
+|s11    | C3 C4
 |--------------
 |     C2
 |--------------
-|s3     | C4 C4
-|start  | C4 C4
+|s2     | C3 C3
+|s8     | C2 C2
+|s7     | C2 C3
+|s9     | C3 C2
+|s6     | C3 C2
 |--------------
 |     C4
 |--------------
-|s5     | C2 C2
-|s4     | C2 C2
+|start  | C5 C4
 |--------------
 |     C5
 |--------------
-|s6     | C3 C3
-|s2     | C3 C3
+|s0     | C3 C2
+
+----------------------------
+Iteration count 4:
+|--------------
+|     C5
+|--------------
+|s0     | C6 C2
+|--------------
+|     C2
+|--------------
+|s2     | C7 C7
+|s8     | C2 C2
+|s7     | C2 C7
+|s9     | C6 C2
+|s6     | C6 C2
+|--------------
+|     C4
+|--------------
+|start  | C5 C4
+|--------------
+|     C6
+|--------------
+|s11    | C6 C4
+|s3     | C6 C4
+|s1     | C6 C4
+|s10    | C6 C4
+|--------------
+|     C7
+|--------------
+|s5     | C2 C4
+|s4     | C2 C4
+
+----------------------------
+Iteration count 5:
+|--------------
+|     C5
+|--------------
+|s0     | C6 C8
+|--------------
+|     C7
+|--------------
+|s5     | C11 C4
+|s4     | C11 C4
+|--------------
+|     C4
+|--------------
+|start  | C5 C4
+|--------------
+|     C6
+|--------------
+|s11    | C6 C4
+|s3     | C6 C4
+|s1     | C6 C4
+|s10    | C6 C4
+|--------------
+|     C8
+|--------------
+|s2     | C7 C7
+|--------------
+|     C9
+|--------------
+|s8     | C11 C10
+|--------------
+|    C10
+|--------------
+|s7     | C9 C7
+|--------------
+|    C11
+|--------------
+|s6     | C6 C10
+|s9     | C6 C10
 
 ----------------------------
