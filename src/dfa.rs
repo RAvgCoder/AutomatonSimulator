@@ -38,7 +38,11 @@ impl ReductionSteps {
 
 impl Display for ReductionSteps {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "Number of equivalence classes created: {}", self.num_of_classes_created)?;
+        writeln!(
+            f,
+            "Number of equivalence classes created: {}",
+            self.num_of_classes_created
+        )?;
         writeln!(f, "{}", self.steps)?;
         writeln!(f, "{}", self.table)?;
         writeln!(f, "{:#?}", self.reduced_dfa)?;
