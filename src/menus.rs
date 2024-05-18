@@ -99,7 +99,7 @@ pub mod dfa_menu {
         match menu_option {
             MenuOptions::ReduceDFA => {
                 if let Some(steps) = dfa.reduce() {
-                    println!("{:#?}", steps);
+                    println!("{}", steps);
                 }
             }
             _ => panic!("{:?} not available for DFAs", menu_option),
