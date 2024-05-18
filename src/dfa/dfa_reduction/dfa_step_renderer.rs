@@ -27,7 +27,6 @@ impl<'a> DFAReductionStepsRenderer<'a> {
     /// * `state_transition_map`: A map of all states and a list of states they transition to
     /// * `final_and_non_final_classes`: An equivalence class which was divided into final and non-final states
     /// * `state`: Any state in the dfa. Used for finding the transition alphabets (Σ)
-
     pub fn new(
         state_transition_map: &'a HashMap<String, Vec<String>>,
         final_and_non_final_classes: &Vec<EquivalenceClass>,
@@ -36,19 +35,24 @@ impl<'a> DFAReductionStepsRenderer<'a> {
         let err_message = "First division was not properly split into final and no final states";
         assert!(final_and_non_final_classes.len() <= 2, "{}", err_message);
 
-        let first_class = EquivalenceClass::get_name(EquivalenceClass::get_start_count());
+        let first_class = EquivalenceClass::create_name(EquivalenceClass::get_start_count());
         final_and_non_final_classes
             .iter()
             .find(|equivalence_class| *equivalence_class.prefix_name() == first_class)
             .expect(err_message);
 
+        let split_table = Self::render_table_to_string(
+            None,
+            final_and_non_final_classes,
+            state_transition_map,
+        );
+        
         DFAReductionStepsRenderer {
-            table_steps: vec![Self::create_table_as_string(
-                None,
-                final_and_non_final_classes,
-                state_transition_map,
-            )],
-            steps: vec![],
+            table_steps: vec![split_table.clone()],
+            steps: vec![
+                String::from("Divide the table into final, 'C0' and non-final 'C1' states"),
+                split_table,
+            ],
             state_transition_map,
             transitions_alphabets: state
                 .get_transitions()
@@ -69,6 +73,10 @@ impl<'a> DFAReductionStepsRenderer<'a> {
     /// Moves the instructions for steps taken for reduction created out of the renderer
     pub fn move_steps(&mut self) -> Vec<String> {
         std::mem::take(&mut self.steps)
+    }
+
+    pub fn transitions_alphabets(&self) -> &Vec<Symbol> {
+        &self.transitions_alphabets
     }
 
     /// Show how tha class was broken down into smaller classes
@@ -106,14 +114,14 @@ impl<'a> DFAReductionStepsRenderer<'a> {
         ));
         // Show the new tables that are created
         self.steps.push(String::from("These include:"));
-        self.steps.push(Self::create_table_as_string(
+        self.steps.push(Self::render_table_to_string(
             Some(new_split_classes),
             complete_equiv_class_list,
             self.state_transition_map,
         ));
 
         // Add a new iteration to the tale
-        self.table_steps.push(Self::create_table_as_string(
+        self.table_steps.push(Self::render_table_to_string(
             None,
             complete_equiv_class_list,
             self.state_transition_map,
@@ -150,6 +158,14 @@ impl<'a> DFAReductionStepsRenderer<'a> {
         self.class_name_dividing = class_dividing.prefix_name().clone()
     }
 
+    /// Adds closing remarks to the steps
+    pub fn finish(&mut self, eq_list: &Vec<EquivalenceClass>) {
+        self.steps.push(format!(
+            "All states are now reduced into their equivalent classes giving us a total of {} equivalent classes",
+            eq_list.len()
+        ))
+    }
+
     /// Retrieves the last table generated
     pub fn last_generated_table(&self) -> Option<&String> {
         self.table_steps.last()
@@ -161,7 +177,7 @@ impl<'a> DFAReductionStepsRenderer<'a> {
     ///
     /// * `state_id`: A state in a subdividing class
     /// * `class_transition_names`: Names of the classes corresponding to the states in its transitions
-    pub fn track_sub_divisions(&mut self, state_id: &String, class_transition_names: &String) {
+    pub fn track_sub_divisions(&mut self, state_id: &str, class_transition_names: &str) {
         self.steps.push(format!(
             "{: <padding$}|   {}",
             state_id,
@@ -190,7 +206,7 @@ impl<'a> DFAReductionStepsRenderer<'a> {
     /// * `partial_equivalence_classes`: A slice of the equivalence class you want to generate a table for
     /// * `full_equivalence_classes`: A list of all equivalence classes
     /// * `state_transition_map`: A map of all states and a list of states they transition to
-    fn create_table_as_string(
+    fn render_table_to_string(
         partial_equivalence_classes: Option<&[EquivalenceClass]>,
         full_equivalence_classes: &Vec<EquivalenceClass>,
         state_transition_map: &HashMap<String, Vec<String>>,
@@ -282,7 +298,12 @@ impl<'a> DFAReductionStepsRenderer<'a> {
 
 impl<'a> std::fmt::Display for DFAReductionStepsRenderer<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "Steps for reducing the dfa are as follows:")?;
+        writeln!(
+            f,
+            r#"----------------------------------
+Solution Provided by the solver 
+----------------------------------"#
+        )?;
         for step in &self.steps {
             writeln!(f, "{}", step)?;
         }
