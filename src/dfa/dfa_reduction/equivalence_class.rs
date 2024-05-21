@@ -1,9 +1,10 @@
 use std::collections::HashSet;
+use std::sync::atomic::{AtomicU32, Ordering};
 
 /// The number the counter starts from
 const START_COUNT: u8 = 0;
 /// Counter to keep track of the next available class number
-static mut CLASS_COUNTER: u32 = START_COUNT as u32;
+static CLASS_COUNTER: AtomicU32 = AtomicU32::new(START_COUNT as u32);
 
 #[derive(Debug)]
 pub struct EquivalenceClass {
@@ -21,13 +22,13 @@ impl EquivalenceClass {
     ///
     /// * `class_state_ids`: Set of states belonging to the class
     pub fn new(class_state_ids: HashSet<String>) -> EquivalenceClass {
-        // Increment the class counter
         assert_ne!(
             class_state_ids.len(),
             0,
             "Cannot create an equivalence class with no states"
         );
 
+        // Increment the class counter
         let class_name = Self::create_name(Self::get_next_class_number());
         EquivalenceClass {
             class_name,
@@ -52,6 +53,7 @@ impl EquivalenceClass {
     /// let name = EquivalenceClass::get_name(1);
     /// println!("{}", name); // "C1"
     /// ```
+    #[inline]
     pub fn create_name(class_number: u32) -> String {
         format!("{}{}", Self::PREFIX_NAME, class_number)
     }
@@ -67,17 +69,14 @@ impl EquivalenceClass {
     }
 
     /// Returns the original number for the first equivalence class created
-    pub fn get_start_count() -> u32 {
+    pub const fn get_start_count() -> u32 {
         START_COUNT as u32
     }
 
-    // Helper method to get the next available class number
+    /// Helper method to get the next available class number
+    #[inline]
     fn get_next_class_number() -> u32 {
-        unsafe {
-            let class_number = CLASS_COUNTER;
-            CLASS_COUNTER += 1;
-            class_number
-        }
+        CLASS_COUNTER.fetch_add(1, Ordering::Relaxed)
     }
 
     /// Given a state name it finds the corresponding equivalence class it corresponds to in the list provided
