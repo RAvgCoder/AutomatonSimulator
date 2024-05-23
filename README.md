@@ -1,4 +1,4 @@
-# Automaton Simulator
+# automaton_core
 
 Automaton Simulator is a tool for simulating and visualizing finite automata. It allows you to define and interact with deterministic finite automata (DFA) and nondeterministic finite automata (NFA), providing functionalities to input automata, perform simulations, and visualize the behavior.
 
