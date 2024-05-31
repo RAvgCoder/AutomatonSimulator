@@ -25,6 +25,18 @@ pub fn find_command_from_menu(menu_option_list: &[MenuOptions]) -> MenuOptions {
         .expect(&format!("Invalid option {}", option_idx))
 }
 
+fn read_simulating_string() -> String {
+    println!("Input string to simulate for: ");
+    let mut simulating_string = String::new();
+    io::stdin()
+        .read_line(&mut simulating_string)
+        .expect("Failed to read string to simulate");
+    simulating_string = simulating_string.trim_end_matches(END_LINE).parse().unwrap();
+
+    simulating_string
+}
+
+
 #[derive(Debug, Copy, Clone)]
 pub enum MenuOptions {
     // DFA
@@ -61,6 +73,9 @@ pub mod pda_menu {
 
     pub fn table(menu_option: MenuOptions, automaton: Automaton) {
         match menu_option {
+            MenuOptions::SimulateNFA => {
+
+            }
             _ => panic!("{:?} not available for PDAs", menu_option),
         }
     }
@@ -89,7 +104,7 @@ pub mod nfa_menu {
 pub mod dfa_menu {
     use crate::automaton_graph::Automaton;
     use crate::dfa::DFA;
-    use crate::menus::MenuOptions;
+    use crate::menus::{MenuOptions, read_simulating_string};
 
     const MENU_OPTIONS: [MenuOptions; 2] = [MenuOptions::ReduceDFA, MenuOptions::SimulateDFA];
 
@@ -101,6 +116,16 @@ pub mod dfa_menu {
                 if let Some(steps) = dfa.reduce() {
                     println!("{}", steps);
                 }
+            }
+            MenuOptions::SimulateDFA => {
+                println!(
+                    "Simulation ended in {} state",
+                    if dfa.simulate(&read_simulating_string()).unwrap() {
+                        "an accept"
+                    } else {
+                        "a reject"
+                    }
+                )
             }
             _ => panic!("{:?} not available for DFAs", menu_option),
         };

@@ -4,6 +4,7 @@ use crate::automaton_graph::Automaton;
 use crate::dfa::dfa_reduction::{Steps, Table};
 
 mod dfa_reduction;
+mod dfa_simulator;
 
 pub struct DFA {
     automaton_graph: Automaton,
