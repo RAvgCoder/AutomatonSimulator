@@ -1,6 +1,7 @@
-use crate::automaton_graph::{Automaton, AutomatonType, State, Tests};
 use std::collections::HashMap;
-use std::rc::Rc;
+use std::rc::{Rc, Weak};
+
+use crate::automaton_graph::{Automaton, AutomatonType, State, Tests};
 
 impl Automaton {
     pub fn new(
@@ -20,6 +21,10 @@ impl Automaton {
         }
     }
 
+    pub fn get_start_state(&self) -> Rc<State> {
+        self.start_state.clone()
+    }
+
     pub fn all_states(&self) -> &Vec<Rc<State>> {
         &self.all_states
     }
@@ -37,7 +42,7 @@ impl Automaton {
                         .transition_edges
                         .borrow()
                         .iter()
-                        .map(|transition| transition.to().id.clone())
+                        .map(|transition| transition.next_state_id().clone())
                         .collect::<Vec<String>>(),
                 );
                 hash_map
