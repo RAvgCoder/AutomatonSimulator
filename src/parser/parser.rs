@@ -287,7 +287,8 @@ impl Parser {
                         let mut pop: Option<Symbol> = None;
 
                         // Applicable for NFAs, DFAs & PDAs
-                        symbol = if label[0] == 'ϵ' {
+
+                        symbol = if label[0] == char::from(Symbol::EPSILON) {
                             Symbol::EPSILON
                         } else {
                             Symbol::CHAR(label[0])
@@ -295,17 +296,17 @@ impl Parser {
 
                         // For PDAs only
                         if label.len() == 3 {
-                            symbol = if label[0] == 'ϵ' {
+                            symbol = if label[0] == char::from(Symbol::EPSILON) {
                                 Symbol::EPSILON
                             } else {
                                 Symbol::CHAR(label[0])
                             };
-                            pop = Some(if label[1] == 'ϵ' {
+                            pop = Some(if label[1] == char::from(Symbol::EPSILON) {
                                 Symbol::EPSILON
                             } else {
                                 Symbol::CHAR(label[1])
                             });
-                            push = Some(if label[2] == 'ϵ' {
+                            push = Some(if label[2] == char::from(Symbol::EPSILON) {
                                 Symbol::EPSILON
                             } else {
                                 Symbol::CHAR(label[2])
@@ -393,7 +394,7 @@ impl Parser {
         }
 
         // Build the final automaton
-        Automaton::new(
+        let automaton = Automaton::new(
             // This should never fail as long as the skeleton_sate is correctly implemented
             // and the match on sate_type is also correct
             automaton_type.expect("Automaton type was never set"),
@@ -408,7 +409,14 @@ impl Parser {
                 accepting_strings,
                 rejecting_strings,
             },
-        )
+        );
+
+        // Makes all transition have the same order of symbols
+        for s in automaton.all_states() {
+            s.transition_edges.borrow_mut().sort()
+        }
+
+        automaton
     }
 
     /// Creates a new Parser from a program string
