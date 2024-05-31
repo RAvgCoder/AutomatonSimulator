@@ -394,7 +394,8 @@ impl Parser {
         }
 
         // Build the final automaton
-        let automaton = Automaton::new(
+
+        Automaton::new(
             // This should never fail as long as the skeleton_sate is correctly implemented
             // and the match on sate_type is also correct
             automaton_type.expect("Automaton type was never set"),
@@ -409,14 +410,7 @@ impl Parser {
                 accepting_strings,
                 rejecting_strings,
             },
-        );
-
-        // Makes all transition have the same order of symbols
-        for s in automaton.all_states() {
-            s.transition_edges.borrow_mut().sort()
-        }
-
-        automaton
+        )
     }
 
     /// Creates a new Parser from a program string
