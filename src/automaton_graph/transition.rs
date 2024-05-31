@@ -1,7 +1,9 @@
-use crate::automaton_graph::{State, Symbol, Transition};
+use std::cell::{Ref, RefCell};
 use std::cmp::Ordering;
 use std::fmt;
 use std::rc::Rc;
+
+use crate::automaton_graph::{State, Symbol, Transition};
 
 impl Transition {
     /// Creates a full [Transition] object with options to add pop and push options
@@ -42,13 +44,44 @@ impl Transition {
         }
     }
 
-    /// Ret
+    /// Returns the id of the State pointing to
+    pub fn next_state_id(&self) -> &String {
+        &self.to.id
+    }
+
+    /// Returns a strong reference to the [State] its pointing to
     pub fn to(&self) -> Rc<State> {
         self.to.clone()
     }
 
     pub fn transition_on(&self) -> Symbol {
         self.symbol
+    }
+
+    pub fn find_transition_by_symbol(
+        transitions: Ref<Vec<Transition>>,
+        symbol: char,
+    ) -> Option<Transition> {
+        println!("Symbol c: {}", symbol);
+        transitions.iter().for_each(|x| println!("{}", x.transition_on()));
+        println!("---");
+        Some(
+            transitions
+                .iter()
+                .find(|transition| char::from(transition.symbol) == symbol)?
+                .clone(),
+        )
+    }
+}
+
+impl Clone for Transition {
+    fn clone(&self) -> Self {
+        Transition {
+            to: Rc::clone(&self.to),
+            symbol: self.symbol,
+            pop: self.pop,
+            push: self.push,
+        }
     }
 }
 
