@@ -1,4 +1,6 @@
 use std::cell::RefCell;
+use std::fmt;
+use std::fmt::{Debug, Formatter};
 use std::rc::Rc;
 
 mod automaton;
@@ -32,9 +34,9 @@ pub struct Transition {
     /// If transition graph is a PDA
 
     /// Symbol pushed on the stack
-    pop: Option<Symbol>,
+    pop_symbol: Option<Symbol>,
     /// Symbol popped from the stack
-    push: Option<Symbol>,
+    push_symbol: Option<Symbol>,
 }
 
 /// Position on the screen to be rendered
@@ -74,4 +76,21 @@ pub struct Automaton {
 pub struct Tests {
     pub accepting_strings: Vec<String>,
     pub rejecting_strings: Vec<String>,
+}
+
+pub enum SimulationError {
+    // PDAs
+    NoTransitionForSymbol(String),
+    IllegalPopFromStack(String),
+}
+
+impl Debug for SimulationError {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            SimulationError::NoTransitionForSymbol(msg)
+            | SimulationError::IllegalPopFromStack(msg) => {
+                write!(f, "PDA: Simulation Err {}", msg)
+            }
+        }
+    }
 }
