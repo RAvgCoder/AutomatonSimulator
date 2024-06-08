@@ -1,4 +1,4 @@
-use std::cell::{Ref, RefCell};
+use std::cell::Ref;
 use std::cmp::Ordering;
 use std::fmt;
 use std::rc::Rc;
@@ -18,14 +18,14 @@ impl Transition {
     pub fn new(
         to: Rc<State>,
         symbol: Symbol,
-        pop: Option<Symbol>,
-        push: Option<Symbol>,
+        pop_symbol: Option<Symbol>,
+        push_symbol: Option<Symbol>,
     ) -> Transition {
         Transition {
             to,
             symbol,
-            pop,
-            push,
+            pop_symbol,
+            push_symbol,
         }
     }
 
@@ -39,8 +39,8 @@ impl Transition {
         Transition {
             to,
             symbol,
-            pop: None,
-            push: None,
+            pop_symbol: None,
+            push_symbol: None,
         }
     }
 
@@ -58,19 +58,54 @@ impl Transition {
         self.symbol
     }
 
+    /// Value to be pushed to the stack
+    pub fn push_symbol(&self) -> Option<Symbol> {
+        self.push_symbol
+    }
+
+    /// Value to be popped from the stack
+    pub fn pop_symbol(&self) -> Option<Symbol> {
+        self.pop_symbol
+    }
+
+    /// Finds all transitions that can be taken if given
+    /// a particular symbol
+    ///
+    /// # Arguments
+    ///
+    /// * `transitions`: List of transitions
+    /// * `symbol`: The char equivalent of that symbol
+    /// Note to check for transitions on epsilon use [Self::find_epsilon_transitions]
     pub fn find_transition_by_symbol(
         transitions: Ref<Vec<Transition>>,
         symbol: char,
-    ) -> Option<Transition> {
+    ) -> Vec<Transition> {
         println!("Symbol c: {}", symbol);
-        transitions.iter().for_each(|x| println!("{}", x.transition_on()));
+        transitions
+            .iter()
+            .for_each(|t| println!("Sym {} To: {}", t.transition_on(), t.next_state_id()));
         println!("---");
-        Some(
-            transitions
-                .iter()
-                .find(|transition| char::from(transition.symbol) == symbol)?
-                .clone(),
-        )
+
+        transitions
+            .iter()
+            .filter_map(|transition| {
+                if char::from(transition.symbol) == symbol {
+                    Some(transition.clone())
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<Transition>>()
+    }
+
+    /// Finds all transitions that can be taken on an
+    /// epsilon transition [Symbol::EPSILON] \ ϵ
+    ///
+    /// # Arguments
+    ///
+    /// * `transitions`: List of transitions
+    pub fn find_epsilon_transitions(transitions: Ref<Vec<Transition>>) -> Vec<Transition> {
+        Transition::find_transition_by_symbol(transitions, char::from(Symbol::EPSILON))
     }
 }
 
@@ -79,8 +114,8 @@ impl Clone for Transition {
         Transition {
             to: Rc::clone(&self.to),
             symbol: self.symbol,
-            pop: self.pop,
-            push: self.push,
+            pop_symbol: self.pop_symbol,
+            push_symbol: self.push_symbol,
         }
     }
 }
@@ -91,8 +126,8 @@ impl fmt::Debug for Transition {
         f.debug_struct("Transition")
             .field("to", &self.to.id)
             .field("symbol", &self.symbol)
-            .field("pop", &self.pop)
-            .field("push", &self.push)
+            .field("pop_symbol", &self.pop_symbol)
+            .field("push_symbol", &self.push_symbol)
             .finish()
     }
 }
