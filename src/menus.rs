@@ -31,11 +31,13 @@ fn read_simulating_string() -> String {
     io::stdin()
         .read_line(&mut simulating_string)
         .expect("Failed to read string to simulate");
-    simulating_string = simulating_string.trim_end_matches(END_LINE).parse().unwrap();
+    simulating_string = simulating_string
+        .trim_end_matches(END_LINE)
+        .parse()
+        .unwrap();
 
     simulating_string
 }
-
 
 #[derive(Debug, Copy, Clone)]
 pub enum MenuOptions {
@@ -56,6 +58,42 @@ pub enum MenuOptions {
 }
 
 pub mod pda_menu {
+    use std::rc::Rc;
+
+    use crate::automaton_graph::Automaton;
+    use crate::menus::{read_simulating_string, MenuOptions};
+    use crate::pda::PDA;
+
+    const MENU_OPTIONS: [MenuOptions; 2] = [
+        MenuOptions::SimulatePDA,
+        MenuOptions::GenerateCorrespondingGrammar,
+    ];
+
+    pub(crate) const fn list<'a>() -> &'a [MenuOptions] {
+        &MENU_OPTIONS
+    }
+
+    pub fn table(menu_option: MenuOptions, automaton: Automaton) {
+        let mut pda = PDA::new(Rc::new(automaton));
+
+        match menu_option {
+            MenuOptions::SimulatePDA => {
+                let prog_to_sim = read_simulating_string();
+                println!(
+                    "Simulation ended in {} state",
+                    if pda.simulate(prog_to_sim).unwrap() {
+                        "an accept"
+                    } else {
+                        "a reject"
+                    }
+                )
+            }
+            _ => panic!("{:?} not available for PDAs", menu_option),
+        }
+    }
+}
+
+pub mod nfa_menu {
     use crate::automaton_graph::Automaton;
     use crate::menus::MenuOptions;
 
@@ -73,29 +111,6 @@ pub mod pda_menu {
 
     pub fn table(menu_option: MenuOptions, automaton: Automaton) {
         match menu_option {
-            MenuOptions::SimulateNFA => {
-
-            }
-            _ => panic!("{:?} not available for PDAs", menu_option),
-        }
-    }
-}
-
-pub mod nfa_menu {
-    use crate::automaton_graph::Automaton;
-    use crate::menus::MenuOptions;
-
-    const MENU_OPTIONS: [MenuOptions; 2] = [
-        MenuOptions::SimulatePDA,
-        MenuOptions::GenerateCorrespondingGrammar,
-    ];
-
-    pub(crate) const fn list<'a>() -> &'a [MenuOptions] {
-        &MENU_OPTIONS
-    }
-
-    pub fn table(menu_option: MenuOptions, automaton: Automaton) {
-        match menu_option {
             _ => panic!("{:?} not available for NFAs", menu_option),
         }
     }
@@ -104,7 +119,7 @@ pub mod nfa_menu {
 pub mod dfa_menu {
     use crate::automaton_graph::Automaton;
     use crate::dfa::DFA;
-    use crate::menus::{MenuOptions, read_simulating_string};
+    use crate::menus::{read_simulating_string, MenuOptions};
 
     const MENU_OPTIONS: [MenuOptions; 2] = [MenuOptions::ReduceDFA, MenuOptions::SimulateDFA];
 
