@@ -48,7 +48,7 @@ impl Parser {
     ///
     ///     }
     ///
-    pub fn parse(program: String) -> Automaton {
+    pub fn parse(program: &str) -> Automaton {
         // Creates a parser for to parse the skeleton of the program
         let mut skeleton_parser = Self::new(Self::prog_preprocessor(program)).set_counter(1); // Read an opening scope at the beginning
 
@@ -606,7 +606,7 @@ Found: {:?}",
     }
 
     /// Performs a full cleanup on the input program to remove new lines and spaces
-    fn prog_preprocessor(program: String) -> String {
+    fn prog_preprocessor(program: &str) -> String {
         // Remove new lines and spaces
         let cleaned_up_string = Regex::new(r"[\r\n\s*]")
             .expect("Failed to create program preprocessor regex")

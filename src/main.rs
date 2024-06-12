@@ -8,12 +8,13 @@ mod automaton_graph;
 mod dfa;
 mod menus;
 mod parser;
+mod pda;
 
 const END_LINE: &str = "\r\n";
 
 fn main() {
     println!("What is the absolute file path which contains the description of the automaton?");
-    let automaton = Parser::parse(read_program());
+    let automaton = Parser::parse(&read_program());
     let automaton_type = automaton.automaton_type;
 
     let menu_idx = menus::find_command_from_menu(match automaton_type {
@@ -31,7 +32,7 @@ fn main() {
 
 fn read_program() -> String {
     let mut file_path = String::new();
-    file_path = String::from(r"C:\Users\egbor\Videos\Rust\AutomatonSimulator\src\TESTS\input.txt");
+    file_path = String::from(r"C:\Users\egbor\Videos\Rust\automaton_core\src\TESTS\input.txt");
     // Read the file_path for the automaton input
     // io::stdin()
     //     .read_line(&mut file_path)

@@ -80,12 +80,6 @@ impl Transition {
         transitions: Ref<Vec<Transition>>,
         symbol: char,
     ) -> Vec<Transition> {
-        println!("Symbol c: {}", symbol);
-        transitions
-            .iter()
-            .for_each(|t| println!("Sym {} To: {}", t.transition_on(), t.next_state_id()));
-        println!("---");
-
         transitions
             .iter()
             .filter_map(|transition| {

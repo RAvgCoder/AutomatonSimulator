@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::rc::{Rc, Weak};
+use std::rc::Rc;
 
 use crate::automaton_graph::{Automaton, AutomatonType, State, Tests};
 
