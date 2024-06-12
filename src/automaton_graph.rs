@@ -67,7 +67,7 @@ pub struct Automaton {
     is_in_accept_state: bool,
     accept_states: Vec<Rc<State>>,
     all_states: Vec<Rc<State>>,
-    tests: Tests,
+    pub tests: Tests,
 }
 
 /// Represents a test suite for strings to be accepted
@@ -81,15 +81,22 @@ pub struct Tests {
 pub enum SimulationError {
     // PDAs
     NoTransitionForSymbol(String),
+    MultipleTransitionsFound(String),
     IllegalPopFromStack(String),
 }
 
 impl Debug for SimulationError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "PDA Simulation Err: ")?;
         match self {
-            SimulationError::NoTransitionForSymbol(msg)
-            | SimulationError::IllegalPopFromStack(msg) => {
-                write!(f, "PDA: Simulation Err {}", msg)
+            SimulationError::NoTransitionForSymbol(msg) => {
+                write!(f, "NoTransitionForSymbol: {}", msg)
+            }
+            SimulationError::MultipleTransitionsFound(msg) => {
+                write!(f, "MultipleTransitionsFound: {}", msg)
+            }
+            SimulationError::IllegalPopFromStack(msg) => {
+                write!(f, "IllegalPopFromStack: {}", msg)
             }
         }
     }
